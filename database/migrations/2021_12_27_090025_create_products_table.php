@@ -30,6 +30,8 @@ class CreateProductsTable extends Migration
 
             // Don't forget about foreign keys!
             $table->foreignId('category_id')->constrained();
+            $table->index('id');
+            $table->unique(['name', 'slug']);
         });
     }
 

@@ -85,6 +85,26 @@
     text-transform: uppercase;
     font-family: 'Questrial';
 }
+.product-details form button {
+    color: white;
+    background-color: #d2b49c;
+    border: none;
+    font-size: 15px;
+    font-family: 'Montserrat';
+    width: 75% !important;
+    padding: .6rem;
+    font-weight: bold;
+    transition: 0.4s;
+}
+.product-details form button:hover {
+    background-color: white;
+    color: #d2b49c;
+    border: #d2b49c 1px solid;
+    transition: 0.5s;
+}
+.product-details form {
+    text-align: center;
+}
 
 
 /* More images */

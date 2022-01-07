@@ -26,12 +26,19 @@ class ShopController extends Controller
         return view('product-details', compact('product', 'category'));
     }
 
+    public function cartPage()
+    {
+        $oldCart = Session::has('cart') ? Session::get('cart') : null;
+        $cart = new Basket($oldCart);
+
+        return view('pages.cart', compact('cart'));
+    }
+
     public function addToCart(Request $request) {
         $oldCart = Session::has('cart') ? Session::get('cart') : null;
         $cart = new Basket($oldCart);
         $result = $cart->add($request);
-        //$result = $cart->add($addedProduct, $addedProduct['id']);
-        //$addedProduct = Product::where('id', $request['id'])->first();
+
         Session::put('cart', $cart);
     }
 }

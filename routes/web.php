@@ -19,4 +19,6 @@ Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/shop', [ShopController::class, 'index']);
 Route::get('/product/{slug}', [ShopController::class, 'product']);
+Route::get('/cart', [ShopController::class, 'cartPage']);
+
 Route::post('/addToCart', [ShopController::class, 'addToCart'])->name('addToCart');

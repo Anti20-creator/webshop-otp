@@ -1,3 +1,3 @@
 <div>
-    <p>Cart ({{$cartCount}})</p>
+    <p><a href="/cart">Cart ({{$cartCount}})</a></p>
 </div>
