@@ -16,7 +16,7 @@ class ProductFactory extends Factory
     {
         $faker = Faker\Factory::create();
 
-        $special_labels = [ 'new', null ];
+        $special_labels = [ 'basic', 'comfy', null ];
 
         return [
             'name' => $faker->unique()->word(),

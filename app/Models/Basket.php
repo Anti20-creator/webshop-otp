@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Basket extends Model
+{
+    
+    public $items = [];
+    public $totalQty = 0;
+    public $totalPrice = 0;
+
+    public $test = 0;
+
+    public function __construct($oldCart) {
+
+        if($oldCart) {
+            $this->items = $oldCart->items;
+            $this->totalQty = $oldCart->totalQty;
+            $this->totalPrice = $oldCart->totalPrice;
+            $this->test = $oldCart->test;
+        }
+
+    }
+
+    public function add(Request $request) {
+        $variantId = $request->input('size_id');
+        $size = $request->input('size');
+        $id = $request->input('product_id');
+        $item = Product::all()->where('id', $id)->first();
+
+
+        $storedItem = ['qty' => 0, 'price' => $item->price, 'item' => $item, 'size' => $size];
+
+        if($this->items && array_key_exists($variantId, $this->items)) {
+            $storedItem = $this->items[$variantId];
+        }
+
+        $storedItem['qty']++;
+        $storedItem['price'] = $item->price * $storedItem['qty'];
+        $this->items[$variantId] = $storedItem;
+        $this->totalQty++;
+        $this->totalPrice += $item->price;
+    }
+
+    public function remove($item, $id) {
+
+        if($this->items && array_key_exists($id, $this->items)) {
+            $selectedItem = $this->items[$id];
+        }
+        $selectedItem['qty']--;
+        $selectedItem['price'] = $item->price * $selectedItem['qty'];
+        $this->items[$id] = $selectedItem;
+        $this->totalQty--;
+        $this->totalPrice -= $item->price;
+
+        return $selectedItem;
+    }
+}

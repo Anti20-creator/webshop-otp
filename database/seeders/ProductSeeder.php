@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Faker;
 
 class ProductSeeder extends Seeder
 {
@@ -14,6 +16,50 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        Product::factory()->count(20)->create();
+
+        $categories = ['basic', 'comfy'];
+        foreach($categories as $category) { 
+            DB::table('categories')->insert([
+                'name' => $category
+            ]);
+        }
+
+        $images = json_decode(file_get_contents(__DIR__.'/data/images.json', true));
+        $names = json_decode(file_get_contents(__DIR__.'/data/names.txt', true));
+        $prices = json_decode(file_get_contents(__DIR__.'/data/prices.txt', true));
+        $sizes = ['XS', 'S', 'M', 'L', 'XL'];
+
+        for ($i = 0; $i < count($images); $i++) { 
+
+            $faker = Faker\Factory::create();
+
+            $imgset = $faker->randomElements($images, 3);
+
+            $special_labels = [ 'basic', 'comfy', null ];
+
+            DB::table('products')->insert([
+                'name'          => $names[$i],
+                'slug'          => implode('-', explode(' ', trim(strtolower($names[$i])))),
+                'description'   => $faker->text(),
+                'price'         => intval($prices[$i]),
+                'images'        => json_encode($imgset),
+                'thumbnails'    => null,
+                'discount'      => null,
+                'special-label' => $faker->randomElement($special_labels),
+                'category_id'   => $faker->numberBetween(1, 2)
+            ]);
+            
+            
+            $selected_sizes = $faker->randomElements($sizes, 3);
+            
+            foreach ($selected_sizes as $size) {
+                DB::table('sizes')->insert([
+                    'name'       => $size,
+                    'quantity'   => $faker->numberBetween(0, 10),
+                    'product_id' => $i+1
+                ]);
+            }
+
+        }
     }
 }
