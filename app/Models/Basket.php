@@ -28,13 +28,13 @@ class Basket extends Model
     }
 
     public function add(Request $request) {
-        $variantId = $request->input('size_id');
         $size = $request->input('size');
         $id = $request->input('product_id');
         $item = Product::all()->where('id', $id)->first();
+        $variantId = Size::all()->where('product_id', $id)->where('name', $size)->first()->id;
 
 
-        $storedItem = ['qty' => 0, 'price' => $item->price, 'item' => $item, 'size' => $size];
+        $storedItem = ['qty' => 0, 'price' => $item->price, 'item' => $item, 'size' => $size, 'variantId' => $variantId];
 
         if($this->items && array_key_exists($variantId, $this->items)) {
             $storedItem = $this->items[$variantId];
@@ -45,9 +45,42 @@ class Basket extends Model
         $this->items[$variantId] = $storedItem;
         $this->totalQty++;
         $this->totalPrice += $item->price;
+
+        return $storedItem['qty'];
     }
 
-    public function remove($item, $id) {
+
+    public function remove(Request $request) {
+        $variantId = $request->input('size_id');
+        $size = $request->input('size');
+        $id = $request->input('product_id');
+        $item = Product::all()->where('id', $id)->first();
+
+        $storedItem = null;
+        if($this->items && array_key_exists($variantId, $this->items)) {
+            $storedItem = $this->items[$variantId];
+        }
+
+        if($storedItem) {
+            if($storedItem['qty'] > 1) {
+                $storedItem['qty']--;
+                $storedItem['price'] = $item->price * $storedItem['qty'];
+                $this->items[$variantId] = $storedItem;
+                $this->totalQty--;
+                $this->totalPrice -= $item->price;
+                return $storedItem['qty'];
+            }else{
+                unset($this->items[$variantId]);
+                $this->totalQty--;
+                $this->totalPrice -= $item->price;
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }
+
+    /*public function remove($item, $id) {
 
         if($this->items && array_key_exists($id, $this->items)) {
             $selectedItem = $this->items[$id];
@@ -59,5 +92,5 @@ class Basket extends Model
         $this->totalPrice -= $item->price;
 
         return $selectedItem;
-    }
+    }*/
 }

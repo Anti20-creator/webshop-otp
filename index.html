@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Adatbázisok 2</title>
+</head>
+<body>
+    <div class="container-fluid bg-light pt-5 pb-5 text-center">
+        <h2>DBA_TABLES, DBA_OBJECTS</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Kinek a tulajdonában van a DBA_TABLES nevű nézet, illetve a DUAL nevű tábla? [owner, object_name, object_type]
+            </h6>
+            <p>
+                <pre>
+                select owner, object_name, object_type from dba_objects
+                where object_name = 'DUAL' and object_type = 'TABLE';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Kinek a tulajdonában van a DBA_TABLES nevű, illetve a DUAL nevű szinonima? [owner, object_name, object_type]
+                Az iménti két lekérdezés megmagyarázza, hogy miért tudjuk elérni a DUAL táblát, illetve a DBA_TABLES
+                nézetet anélkül, hogy minősítenénk őket a tulajdonos nevével így -> tulajdonos.objektum.
+            </h6>
+            <p>
+                <pre>
+                select owner, object_name, object_type from dba_objects;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Milyen típusú objektumai vannak az orauser nevű felhasználónak az adatbázisban? [object_type]
+            </h6>
+            <p>
+                <pre>
+                select distinct object_type from dba_objects where owner = 'ORAUSER';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Hány különböző típusú objektum van nyilvántartva az adatbázisban? [darab]
+            </h6>
+            <p>
+                <pre>
+                select count(distinct object_type) "darab" from dba_objects;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyek ezek a típusok? [object_type]
+            </h6>
+            <p>
+                <pre>
+                select distinct object_type from dba_objects order by 1;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Kik azok a felhasználók, akiknek több mint 10 féle objektumuk van? [owner]
+            </h6>
+            <p>
+                <pre>
+                select owner, count(distinct object_type) db from dba_objects
+                group by owner
+                having count(distinct object_type) > 10
+                order by db desc;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Hány különböző típusú objektum van nyilvántartva az adatbázisban? [darab]
+            </h6>
+            <p>
+                <pre>
+                select count(distinct object_type) "darab" from dba_objects;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Kik azok a felhasználók, akiknek van triggere és nézete is? [owner]
+            </h6>
+            <p>
+                <pre>
+                select distinct owner from dba_objects
+                where object_type = 'VIEW'
+                INTERSECT
+                select distinct owner from dba_objects
+                where object_type = 'TRIGGER';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Kik azok a felhasználók, akiknek van nézete, de nincs triggere? [owner]
+            </h6>
+            <p>
+                <pre>
+                select distinct owner from dba_objects
+                where object_type = 'VIEW'
+                MINUS
+                select distinct owner from dba_objects
+                where object_type = 'TRIGGER';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Kik azok a felhasználók, akiknek több mint n táblájuk, de maximum m indexük van? [owner]
+                (n és m értékét adjuk meg úgy, hogy kb. 1-15 között legyen a sorok száma, pl. n=20, m=15)
+            </h6>
+            <p>
+                <pre>
+                SELECT distinct owner FROM dba_objects WHERE object_type='TABLE'
+                GROUP BY owner
+                HAVING count(*) > 20
+                MINUS
+                SELECT distinct owner FROM dba_objects WHERE object_type='INDEX'
+                GROUP BY owner
+                HAVING count(*) > 15;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyek azok az objektum típusok, amelyek tényleges tárolást igényelnek, vagyis
+                tartoznak hozzájuk adatblokkok? [object_type]
+                (Az olyan objektumoknak, amik nem igényelnek tényleges tárolást, pl. nézet,
+                csak a definíciója tárolódik az adatszótárban. A megoldáshoz a data_object_id oszlopot
+                vizsgáljuk meg.)
+            </h6>
+            <p>
+                <pre>
+                SELECT DISTINCT object_type FROM dba_objects WHERE data_object_id IS NOT NULL;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyek azok az objektum típusok, amelyek nem igényelnek tényleges tárolást, vagyis nem
+                tartoznak hozzájuk adatblokkok? [object_type]
+                Az utóbbi két lekérdezés metszete nem üres. Vajon miért? -> lásd majd partícionálás
+            </h6>
+            <p>
+                <pre>
+                SELECT DISTINCT object_type FROM dba_objects WHERE data_object_id IS NULL;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Keressük meg az utóbbi két lekérdezés metszetét. [object_type]
+                (Ezek olyan objektum típusok, amelyekből előfordul adatblokkokal rendelkező
+                és adatblokkokal nem rendelkező is.)
+            </h6>
+            <p>
+                <pre>
+                SELECT distinct object_type FROM dba_objects WHERE NVL(data_object_id,0) = 0
+                INTERSECT
+                SELECT distinct object_type FROM dba_objects WHERE NVL(data_object_id,0) != 0;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg a NIKOVITS felhasználó tulajdonában levő index-szervezett táblák nevét.
+                (Melyik táblatéren vannak ezek a táblák? -> miért nem látható?)
+            </h6>
+            <p>
+                <pre>
+                    SELECT owner, table_name, iot_name, iot_type, tablespace_name FROM dba_tables 
+                    WHERE owner='NIKOVITS' AND iot_type = 'IOT';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg a fenti táblák túlcsordulási részeit (ha van).
+            </h6>
+            <p>
+                <pre>
+                    SELECT owner, table_name, iot_name, iot_type FROM dba_tables 
+                    WHERE owner='NIKOVITS' AND iot_type = 'IOT_OVERFLOW'
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Keressük meg a NIKOVITS.CIK_IOT index szervezett tábla részeit 
+                (tábla szegmens, túlcsordulási szegmens, a tábla indexei), adjuk meg az
+                objektum azonosítóikat és az adatobjektum azonosítóikat.
+                (object_name, object_type, object_id, data_object_id)
+            </h6>
+            <p>
+                <pre>
+                    SELECT object_name, object_type, object_id, data_object_id 
+                    FROM dba_objects WHERE owner='NIKOVITS'
+                    AND (object_name LIKE 'SYS_IOT%' OR object_name LIKE 'CIKK_IOT%');
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azokat az index szervezett táblákat, amelyeknek pontosan 
+                1 dátum típusú oszlopa van. (owner, table_name)
+            </h6>
+            <p>
+                <pre>
+                    SELECT owner, table_name FROM dba_tables WHERE iot_type = 'IOT'
+                     INTERSECT
+                    SELECT owner, table_name FROM dba_tab_columns
+                    WHERE data_type='DATE' GROUP BY owner, table_name
+                    HAVING count(*) = 1;
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid bg-light pt-5 pb-5 text-center">
+        <h2>DBA_TAB_COLUMNS</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Hány oszlopa van a nikovits.emp táblának? [darab]
+            </h6>
+            <p>
+                <pre>
+                select count(*) "darab" from dba_tab_columns t
+                where t.owner = 'NIKOVITS'
+                and table_name = 'EMP';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Milyen típusú a nikovits.emp tábla 6. oszlopa? [data_type]
+            </h6>
+            <p>
+                <pre>
+                select data_type  from dba_tab_columns t
+                where t.owner = 'NIKOVITS'
+                and table_name = 'EMP'
+                and column_id = 6;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azoknak a tábláknak a tulajdonosát és nevét, amelyeknek van 'Z' betűvel 
+                kezdődő oszlopa. [owner, table_name]
+            </h6>
+            <p>
+                <pre>
+                select distinct owner, table_name  from dba_tab_columns t
+                where column_name like 'Z%';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azoknak a tábláknak a tulajdonosát és nevét, amelyeknek legalább 8 
+                darab dátum tipusú oszlopa van. [owner, table_name]
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, table_name FROM dba_tab_columns
+                WHERE data_type='DATE'
+                GROUP BY owner, table_name
+                HAVING count(*) >= 8;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azoknak a tábláknak a tulajdonosát és nevét, amelyeknek 1. es 4. oszlopa is
+                VARCHAR2 tipusú, az oszlop hossza mindegy. [owner, table_name]
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, table_name FROM dba_tab_columns
+                WHERE column_id=1 AND data_type='VARCHAR2'
+                INTERSECT
+                SELECT owner, table_name FROM dba_tab_columns
+                WHERE column_id=4 AND data_type='VARCHAR2';
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid bg-light pt-5 pb-5 text-center">
+        <h2>DBA_DATA_FILES, DBA_TEMP_FILES</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Adjuk meg az adatbázishoz tartozó adatfile-ok (és temporális fájlok) nevét és méretét
+                méret szerint csökkenő sorrendben. (név, méret)
+            </h6>
+            <p>
+                <pre>
+                SELECT file_name, bytes FROM dba_data_files
+                union
+                SELECT file_name, bytes FROM dba_temp_files
+                ORDER BY bytes DESC;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg, hogy milyen táblaterek vannak létrehozva az adatbazisban,
+                az egyes táblaterek hány adatfájlbol állnak, és mekkora az összméretük.
+                (tablater_nev, fajlok_szama, osszmeret)
+                !!! Vigyázat, van temporális táblatér is.
+            </h6>
+            <p>
+                <pre>
+                select tablespace_name, count( tablespace_name ), sum( bytes ) 
+                from dba_data_files group by tablespace_name 
+                union 
+                select tablespace_name, count( tablespace_name ), sum( bytes ) 
+                from dba_temp_files group by tablespace_name;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Mekkora az adatblokkok merete a USERS táblatéren?
+            </h6>
+            <p>
+                <pre>
+                select block_size from dba_tablespaces where tablespace_name='USERS';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Van-e olyan táblatér, amelynek nincs DBA_DATA_FILES-beli adatfájlja?
+                Ennek adatai hol tárolódnak? -> DBA_TEMP_FILES
+            </h6>
+            <p>
+                <pre>
+                SELECT tablespace_name FROM dba_tablespaces WHERE tablespace_name NOT IN
+                (SELECT tablespace_name FROM dba_data_files);
+                SELECT file_name, tablespace_name FROM dba_temp_files;
+                </pre>
+            </p>
+        </div>
+        <hr>
+    </div>
+    <div class="text-center container-fluid pt-5 pb-5 bg-light">
+        <h2>DBA_SEGMENTS, DBA_EXTENTS</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Melyik a legnagyobb méretű tábla szegmens az adatbázisban és hány extensből áll? 
+                (tulajdonos, szegmens_név, darab)
+                (A particionált táblákat most ne vegyük figyelembe.)
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, segment_name, extents FROM dba_segments
+                WHERE segment_type='TABLE' 
+                ORDER BY bytes DESC 
+                FETCH FIRST 1 rows ONLY;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyik a legnagyobb méretű index szegmens az adatbázisban és hány blokkból áll?
+                (tulajdonos, szegmens_név, darab)
+                (A particionált indexeket most ne vegyuk figyelembe.)
+            </h6>
+            <p>
+                <pre>
+                select * from (select segment_name, blocks, bytes 
+                from dba_segments where segment_type = 'INDEX' order by bytes desc) where rownum = 1;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyik ket felhasznalo objektumai foglalnak osszesen a legtobb helyet az adatbazisban?
+                Vagyis ki foglal a legtöbb helyet, és ki a második legtöbbet?
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, SUM(bytes) FROM dba_segments GROUP BY owner ORDER BY 2 DESC
+                FETCH FIRST 2 ROWS ONLY;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Hány extens van a 'users02.dbf' adatfájlban? Mekkora ezek összmérete? (darab, össz)
+                Hány összefüggő szabad terület van a 'users02.dbf' adatfájlban? Mekkora ezek összmérete? (darab, össz)
+                Hány százalékban foglalt a 'users02.dbf' adatfájl?
+            </h6>
+            <p>
+                <pre>
+                SELECT count(*), sum(e.bytes) FROM dba_data_files f, dba_extents e
+                WHERE file_name like '%/users02%' AND f.file_id=e.file_id;
+    
+                SELECT count(*), sum(fr.bytes) FROM dba_data_files f, dba_free_space fr
+                WHERE file_name LIKE '%/users02%' AND f.file_id=fr.file_id;
+    
+                SELECT sum(e.bytes)/f.bytes FROM dba_data_files f, dba_extents e
+                WHERE file_name LIKE '%/users02%' AND f.file_id=e.file_id
+                GROUP BY f.bytes;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Van-e a NIKOVITS felhasználónak olyan táblája, amelyik több adatfájlban is foglal helyet? (Aramis)
+            </h6>
+            <p>
+                <pre>
+                SELECT segment_name, count(distinct file_id)
+                FROM dba_extents WHERE owner='NIKOVITS' AND segment_type='TABLE'
+                GROUP BY segment_name HAVING count(distinct file_id) > 1;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                A NIKOVITS felhasználó CIKK táblája hány blokkot foglal le az adatbázisban? (blokkszám)
+                (Vagyis hány olyan blokk van, ami ennek a táblának a szegmenséhez tartozik és így már 
+                más táblához nem rendelhető hozzá?)
+            </h6>
+            <p>
+                <pre>
+                SELECT bytes, blocks FROM dba_segments 
+                WHERE owner='NIKOVITS' AND segment_name='CIKK' AND segment_type='TABLE';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Keressük meg a túlcsordulási részeket a szegmensek között és adjuk meg a méretüket.
+            </h6>
+            <p>
+                <pre>
+                    SELECT t.owner, t.table_name, t.iot_name, t.iot_type, s.bytes 
+                    FROM dba_tables t, dba_segments s
+                    WHERE t.owner='NIKOVITS' AND t.iot_type = 'IOT_OVERFLOW'
+                    AND s.owner='NIKOVITS' AND s.segment_name=t.table_name;
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="text-center pt-5 pb-5 bg-light container-fluid">
+        <h2>DBA_TABLES</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Melyik táblatéren van az ORAUSER felhasználó DOLGOZO táblája?
+            </h6>
+            <p>
+                <pre>
+                SELECT tablespace_name FROM dba_tables WHERE owner='ORAUSER' AND table_name='DOLGOZO';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyik táblatéren van a NIKOVITS felhasználó ELADASOK táblája? (Miért lesz null?)
+            </h6>
+            <p>
+                <pre>
+                SELECT tablespace_name FROM dba_tables WHERE owner='NIKOVITS' AND table_name='ELADASOK';
+                --
+                SELECT * FROM dba_objects WHERE owner='NIKOVITS' AND object_name = 'ELADASOK';
+                SELECT * FROM dba_segments WHERE owner='NIKOVITS' AND segment_name = 'ELADASOK' or segment_name like 'NEGYEDEV%';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                A NIKOVITS felhasználó CIKK táblája hány blokkot foglal le az adatbázisban? (blokkszám)
+                (Vagyis hány olyan blokk van, ami ennek a táblának a szegmenséhez tartozik és így már 
+                más táblához nem rendelhető hozzá?)
+            </h6>
+            <p>
+                <pre>
+                SELECT bytes, blocks FROM dba_segments 
+                WHERE owner='NIKOVITS' AND segment_name='CIKK' AND segment_type='TABLE';
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid pt-5 pb-5 bg-light text-center">
+        <h2>
+            DBMS_ROWID
+        </h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                A NIKOVITS felhasználó CIKK táblájának adatai hány blokkban helyezkednek el? (blokkszám)
+                (Vagyis a tábla sorai ténylegesen hány blokkban vannak tárolva?)
+                !!! -> Ez a kérdés nem ugyanaz mint az előző, mert a tábla blokkjai lehetnek üresek is.
+            </h6>
+            <p>
+                <pre>
+                SELECT DISTINCT dbms_rowid.rowid_relative_fno(ROWID) fajl,
+                dbms_rowid.rowid_block_number(ROWID) blokk
+                FROM nikovits.cikk;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Az egyes blokkokban hány sor van? (file_id, blokk_id, darab)
+            </h6>
+            <p>
+                <pre>
+                SELECT dbms_rowid.rowid_relative_fno(ROWID) fajl,
+                dbms_rowid.rowid_block_number(ROWID) blokk, count(*)
+                FROM nikovits.cikk
+                GROUP BY dbms_rowid.rowid_relative_fno(ROWID), dbms_rowid.rowid_block_number(ROWID);
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Állapítsuk meg, hogy a NIKOVITS.ELADASOK táblának a következő adatokkal azonosított sora
+                (szla_szam=100) melyik adatfájlban van, azon belül melyik blokkban, és a blokkon belül hányadik a sor?
+                (file_név, blokk_id, sorszám)
+            </h6>
+            <p>
+                <pre>
+                SELECT  dbms_rowid.rowid_object(ROWID) adatobj, 
+                        dbms_rowid.rowid_relative_fno(ROWID) fajl,
+                        dbms_rowid.rowid_block_number(ROWID) blokk,
+                        dbms_rowid.rowid_row_number(ROWID) sor
+                FROM nikovits.eladasok 
+                WHERE szla_szam=100;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Az előző feladatban megadott sor melyik partícióban van?
+                Mennyi az objektum azonosítója, és ez milyen objektum?
+            </h6>
+            <p>
+                <pre>
+                SELECT  o.object_name, o.subobject_name, o.object_type,o.data_object_id
+                FROM nikovits.eladasok e, dba_objects o
+                WHERE dbms_rowid.rowid_object(e.ROWID) = o.data_object_id 
+                AND szla_szam=100;
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid pt-5 pb-5 bg-light text-center">
+        <h2>
+            DBA_INDEXES, DBA_IND_COLUMNS, DBA_IND_EXPRESSIONS
+        </h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azoknak a tábláknak a nevét, amelyeknek van csökkenő sorrendben indexelt oszlopa. (tulajdonos: NIKOVITS)
+            </h6>
+            <p>
+                <pre>
+                SELECT * FROM dba_ind_columns WHERE descend='DESC' AND index_owner='NIKOVITS';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azoknak az indexeknek a nevét, amelyek legalább 9 oszloposak.
+            </h6>
+            <p>
+                <pre>
+                (Vagyis a táblának legalább 9 oszlopát vagy egyéb kifejezését indexelik.)
+                SELECT index_owner, index_name FROM dba_ind_columns 
+                GROUP BY index_owner, index_name HAVING count(*) >=9;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg a NIKOVITS.CUSTOMERS táblára létrehozott bitmap indexek nevét.
+            </h6>
+            <p>
+                <pre>
+                SELECT index_name FROM dba_indexes 
+                WHERE table_owner='NIKOVITS' AND table_name='CUSTOMERS' AND index_type='BITMAP';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg azon kétoszlopos indexek nevét és tulajdonosát, amelyeknek legalább 
+                az egyik kifejezése függvény alapú. (tulajdonos, név)
+            </h6>
+            <p>
+                <pre>
+                SELECT index_owner, index_name FROM dba_ind_columns 
+                GROUP BY index_owner, index_name HAVING count(*) =2
+                INTERSECT
+                SELECT index_owner, index_name FROM dba_ind_expressions;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg az egyikükre, pl. a NIKOVITS tulajdonában lévőre, hogy milyen kifejezések szerint 
+                vannak indexelve a soraik. (Vagyis mi a függveny, ami alapján a bejegyzések készülnek.)
+            </h6>
+            <p>
+                <pre>
+                SELECT * FROM dba_ind_expressions WHERE index_owner='NIKOVITS';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg a fenti táblák index részét, és azt, hogy ezek az index részek (szegmensek) 
+                melyik táblatéren vannak?
+            </h6>
+            <p>
+                <pre>
+                SELECT table_name, index_name, index_type, tablespace_name FROM dba_indexes 
+                WHERE table_owner='NIKOVITS' AND index_type LIKE '%IOT%TOP%';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Keressük meg a szegmensek között az előző táblákat illetve indexeket, és adjuk
+                meg a méretüket.
+            </h6>
+            <p>
+                <pre>
+                SELECT table_name, index_name, index_type, s.bytes
+                FROM dba_indexes i, dba_segments s 
+                WHERE i.table_owner='NIKOVITS' AND i.index_type LIKE '%IOT%TOP%'
+                AND i.index_name=s.segment_name AND s.owner='NIKOVITS';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Keressük meg az adatbázis objektumok között a fenti táblákat és indexeket, és adjuk
+                meg az objektum azonosítójukat és adatobjektum azonosítójukat (DATA_OBJECT_ID).
+
+            </h6>
+            <p>
+                <pre>
+                SELECT
+                    owner, object_name,object_type,
+                    data_object_id, object_id
+                FROM dba_objects
+                WHERE
+                    (owner, object_name) IN
+                    ((SELECT owner uname, table_name oname FROM
+                    dba_tables WHERE owner='NIKOVITS' AND
+                    iot_type='IOT')
+                    UNION
+                    (SELECT owner username, index_name oname FROM
+                    dba_indexes WHERE index_type LIKE 'IOT%' AND
+                    (table_owner, table_name) IN
+                    (SELECT owner,table_name FROM dba_tables 
+                    WHERE owner='NIKOVITS' AND iot_type='IOT')))
+                    ORDER BY object_type,object_name;
+                </pre>
+                </p>
+        </div>
+    </div>
+    <div class="container-fluid text-center pt-5 pb-5 bg-light">
+        <h2>
+            DBA_PART_TABLES, DBA_PART_INDEXES, DBA_TAB_PARTITIONS, DBA_IND_PARTITIONS
+        </h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Adjuk meg a NIKOVITS felhasználó tulajdonában levő partícionált táblák nevét és a 
+                particionálás típusát. (táblanév, típus)
+                SELECT table_name, partitioning_type FROM dba_part_tables WHERE owner = 'NIKOVITS';
+            </h6>
+            <p>
+                <pre>
+                Adjuk meg a NIKOVITS felhasználó tulajdonában levő partícionált táblák nevét és a 
+                particionálás típusát. (táblanév, típus)
+                SELECT table_name, partitioning_type FROM dba_part_tables WHERE owner = 'NIKOVITS';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Soroljuk fel a NIKOVITS.ELADASOK tábla partícióit valamint, hogy hány blokkot foglalnak
+                az egyes partíciók. (név, blokkok)
+                (Vigyázat! Egyes adatszótárak csak becsült méretet tartalmaznak.
+                A pontos méreteket az extenseknél és szegmenseknél keressük.)
+            </h6>
+            <p>
+                <pre>
+                Az alábbi csak becsült adat az adatszótárból:
+                SELECT partition_name, blocks FROM dba_tab_partitions WHERE table_owner='NIKOVITS' AND table_name='ELADASOK';
+
+                Az alábbi megadja a szegmens tényleges méretét:
+                SELECT segment_name, partition_name, blocks 
+                FROM dba_segments WHERE owner='NIKOVITS' AND segment_type='TABLE PARTITION' and segment_name='ELADASOK';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg, hogy a NIKOVITS.ELADASOK tábla mely oszlop(ok) szerint van particionálva, valamint 
+                adjuk meg az oszlopok sorrendjét a partícionáló oszlopokon belül. (oszlop, sorrend)
+            </h6>
+            <p>
+                <pre>
+                SELECT column_name, column_position FROM dba_part_key_columns 
+                WHERE owner='NIKOVITS' AND name='ELADASOK' AND object_type='TABLE';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg, hogy a NIKOVITS.ELADASOK3 tábla második partíciójában milyen értékek szerepelhetnek. (érték)
+            </h6>
+            <p>
+                <pre>
+                SELECT partition_name, high_value, partition_position FROM dba_tab_partitions 
+                WHERE table_owner='NIKOVITS' AND table_name='ELADASOK3' AND partition_position=2;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjuk meg egy partícionált tábla (pl. NIKOVITS.ELADASOK) logikai és fizikai részeit.
+                (object_name, object_type, subobject_name, object_id, data_object_id) 
+                Maga a tábla most is logikai objektum, a partíciói vannak fizikailag tárolva.
+                Nézzük meg az objektumok és a szegmensek között is.
+            </h6>
+            <p>
+                <pre>
+                SELECT object_name, object_type, subobject_name, object_id, data_object_id
+                FROM dba_objects WHERE owner='NIKOVITS' AND object_name='ELADASOK';
+    
+                SELECT * FROM dba_segments WHERE owner='NIKOVITS' AND segment_name='ELADASOK';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Illetve ha alpartíciói is vannak (pl. nikovits.eladasok4), akkor csak az alpartíciók 
+                vannak tárolva. (object_name, object_type, subobject_name, object_id, data_object_id)
+                Nézzük meg az objektumok és a szegmensek között is.
+                (segment_name, segment_type, bytes)
+            </h6>
+            <p>
+                <pre>
+                SELECT object_name, object_type, subobject_name, object_id, data_object_id
+                FROM dba_objects WHERE owner='NIKOVITS' AND object_name='ELADASOK4';
+    
+                SELECT * FROM dba_segments WHERE owner='NIKOVITS' AND segment_name='ELADASOK4';
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Melyik a legnagyobb méretű partícionált tábla az adatbázisban a partíciók 
+                összméretét tekintve? Az alpartícióval rendelkező táblákat is vegyük figyelembe.
+                (tulajdonos, táblanév, méret)
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, segment_name, SUM(bytes) FROM dba_segments 
+                WHERE segment_type LIKE 'TABLE%PARTITION'
+                GROUP BY owner, segment_name
+                ORDER BY SUM(bytes) DESC;
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid bg-light pt-5 pb-5 text-center">
+        <h2>
+            DBA_CLUSTERS, DBA_CLU_COLUMNS, DBA_CLUSTER_HASH_EXPRESSIONS
+        </h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Adjunk meg egy olyan clustert az adatbázisban (ha van ilyen), amelyen még nincs
+                egy tábla sem. (tulajdonos, klaszternév)
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, cluster_name FROM dba_clusters  
+                MINUS
+                SELECT owner, cluster_name FROM dba_tables;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjunk meg egy olyan clustert, amelyiken pontosan 2 tábla van. (tulajdonos, klaszternév)
+                SELECT owner, cluster_name FROM dba_tables WHERE cluster_name IS NOT NULL
+                GROUP BY owner, cluster_name HAVING COUNT(*) = 2;
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, cluster_name FROM dba_tables WHERE cluster_name IS NOT NULL
+                GROUP BY owner, cluster_name HAVING COUNT(*) = 2;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Adjunk meg egy olyan clustert, amelynek a cluster kulcsa 3 oszlopból áll.
+                Vigyázat, több tábla is lehet rajta!!! (tulajdonos, klaszternév)
+            </h6>
+            <p>
+                <pre>
+                SELECT owner, cluster_name FROM dba_clu_columns  
+                GROUP BY owner, cluster_name HAVING COUNT(DISTINCT clu_column_name) = 3;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Hány olyan hash cluster van az adatbázisban, amely nem az oracle alapértelmezés 
+                szerinti hash függvényén alapul? (darab)
+            </h6>
+            <p>
+                <pre>
+                SELECT COUNT(*) FROM
+                (SELECT owner, cluster_name, hash_expression FROM dba_cluster_hash_expressions);
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="text-center pt-5 pb-5 container-fluid bg-light">
+        <h2>PL/SQL</h2>
+    </div>
+    <div class="container">
+        <div class="mt-4">
+            <h6>
+                Írjunk meg egy PLSQL procedúrát, amelyik a paraméterül kapott karakterlánc alapján 
+                kiírja azoknak a tábláknak a nevét és tulajdonosát, amelyek az adott karakterlánccal 
+                kezdődnek. (Ha a paraméter kisbetűs, akkor is működjön a procedúra!)
+                A fenti procedúra segítségével írjuk ki a Z betűvel kezdődő táblák nevét és tulajdonosát.
+            </h6>
+            <p>
+                <pre>
+                    CREATE OR REPLACE PROCEDURE table_print(p_kar VARCHAR2) IS 
+                    BEGIN
+                        FOR rec IN (
+                            SELECT owner, table_name FROM dba_tables WHERE upper(table_name) LIKE upper(p_kar) || '%'
+                        ) LOOP
+                            dbms_output.put_line(rec.owner || ' ' || rec.table_name);
+                        END LOOP;
+                    END;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Írjunk meg egy PLSQL procedúrát, amelyik a paraméterül kapott felhasználónévre kiírja 
+                a felhasználó legutoljára létrehozott tábláját, annak méretét byte-okban, valamint a létrehozás
+                dátumát.
+            </h6>
+            <p>
+                <pre>
+                    CREATE OR REPLACE PROCEDURE newest_table(p_user VARCHAR2) IS 
+                      v_obj VARCHAR2(30); v_created DATE; v_size INTEGER;
+                    BEGIN
+                      SELECT object_name, created INTO v_obj, v_created FROM dba_objects 
+                      WHERE owner=upper(p_user) AND object_type='TABLE' 
+                      ORDER BY created DESC, object_name
+                      FETCH FIRST 1 ROWS ONLY;
+                      -- MIN function returns NULL for an empty set.
+                      SELECT NVL(MIN(bytes),0) INTO v_size FROM dba_segments 
+                      WHERE owner=upper(p_user) AND segment_name=v_obj AND segment_type='TABLE';
+                      DBMS_OUTPUT.put_line(
+                       '   Table_name: '||v_obj||
+                       '   Size: '||TO_CHAR(v_size)||   ' bytes'||
+                       '   Created: '||TO_CHAR(v_created, 'yyyy.mm.dd.hh24:mi'));
+                    EXCEPTION WHEN OTHERS THEN 
+                      DBMS_OUTPUT.put_line('Non-existing User or User has no tables');
+                    END;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Írjunk meg egy PLSQL procedúrát, amelyik kiírja, hogy a NIKOVITS.TABLA_123 táblának melyik 
+                adatblokkjában hány sor van. (file_id, blokk_id, darab)
+                Vigyázat!!! Azokat az adatblokkokat is ki kell írni, amelyekben a sorok száma 0, de a tábla
+                szegmenséhez tartoznak.
+            </h6>
+            <p>
+                <pre>
+                    create or replace procedure num_of_rows IS
+                        cnt NUMBER;
+                    BEGIN 
+                    FOR rec IN (select file_id, block_id, blocks from dba_extents 
+                                where owner='NIKOVITS' and segment_name='TABLA_123' order by 1,2,3)
+                        LOOP
+                            FOR i in 1..rec.blocks LOOP
+                                SELECT count(*) into cnt FROM nikovits.tabla_123 
+                                WHERE dbms_rowid.rowid_relative_fno(ROWID) = rec.file_id
+                                AND dbms_rowid.rowid_block_number(ROWID) = rec.block_id+i-1;
+                                
+                                dbms_output.put_line(rec.file_id||'.'||to_char(rec.block_id+i-1)||'->'||cnt);
+                            END LOOP;
+                        END LOOP;
+                    END;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Írjunk meg egy plsql procedúrát, amelyik a paraméterül kapott táblára vonatkozóan
+                kiírja a tábla indexeit és azok méretét.
+            </h6>
+            <p>
+                <pre>
+                    CREATE OR REPLACE PROCEDURE list_indexes(p_owner VARCHAR2, p_table VARCHAR2) IS
+                        TYPE table_type IS TABLE OF dba_segments%ROWTYPE;
+                        eredmeny table_type;
+                    BEGIN
+                        SELECT * BULK COLLECT INTO eredmeny FROM DBA_SEGMENTS WHERE segment_name IN
+                    (SELECT DISTINCT index_name FROM DBA_INDEXES
+                        WHERE UPPER(table_owner) = UPPER(p_owner) AND UPPER(table_name) = UPPER(p_table));
+                        FOR i IN 1..eredmeny.COUNT LOOP
+                            dbms_output.put_line(eredmeny(i).segment_name || ': ' || eredmeny(i).bytes);
+                        END LOOP;
+                    END;
+                </pre>
+            </p>
+        </div>
+        <hr>
+        <div class="mt-4">
+            <h6>
+                Írjunk meg egy plsql procedúrát, amelyik a paraméterül kapott index szervezett
+                tábláról kiírja a tábla méretét.
+                Vigyázzunk, mert a táblának lehet index és túlcsordulási szegmense is!
+            </h6>
+            <p>
+                <pre>
+                    CREATE OR REPLACE PROCEDURE iot_tables(p_owner varchar2, p_tabla varchar2) IS
+                        meret number  := 0;
+                        helper number := 0;
+                    BEGIN
+                        FOR rec in (
+                            select owner, table_name from dba_tables where (upper(table_name) = upper(p_tabla) or upper(iot_name) = upper(p_tabla)) and upper(owner) = upper(p_owner) and iot_type LIKE 'IOT%' 
+                        )
+                        LOOP
+                            select sum(bytes) into helper from dba_segments where segment_name LIKE rec.table_name;
+                            helper := NVL(helper, 0);
+                            meret := meret + helper;
+                        END LOOP;
+                        dbms_output.put_line(upper(p_owner) || ' ' || upper(p_tabla) || ' nevu tablajanak merete: ' || meret);
+                    END;
+                </pre>
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid pb-5 pt-5 bg-light text-center">
+        <h2>Maradék</h2>
+    </div>
+    <div class="container">
+        <p>
+            <pre>
+                kurzor használat:
+create PROCEDURE table_print(p_kar VARCHAR2) is
+  CURSOR curs1 IS 
+  select owner,table_name from dba_tables
+  where upper(table_name) like upper(p_kar)||'%';
+  rec curs1%ROWTYPE;
+BEGIN
+  OPEN curs1;
+  LOOP
+    FETCH curs1 INTO rec;
+    EXIT WHEN curs1%NOTFOUND;
+    dbms_output.put_line(rec.owner||' - '||rec.table_name);
+  END LOOP;
+  CLOSE curs1;
+END;
+
+
+
+1. Adjuk meg azoknak a tábláknak a nevét, amelyeknek 2. oszlopa és utolsó oszlopa is NUMBER típusú!
+SELECT table_name FROM DBA_TAB_COLUMNS WHERE column_id = 2 AND data_type = 'NUMBER'
+INTERSECT
+SELECT table_name FROM DBA_TAB_COLUMNS WHERE (table_name, column_id) IN (
+SELECT table_name, max(column_id) FROM DBA_TAB_COLUMNS WHERE owner = 'NIKOVITS' GROUP BY owner, table_name
+) AND data_type = 'NUMBER';
+
+2. Adjuk meg azon felhasználók nevét, akiknek van olyan partícionált táblája, melyre pontosan 3 FUNCTION típusú index van létrehozva. (Név)
+SELECT owner, table_name FROM DBA_INDEXES WHERE INDEX_TYPE LIKE 'FUNCTION%' GROUP BY owner, table_name HAVING COUNT(*) = 3;
+
+
+3. Fizikailag hol található (adatfájl neve, blokk és sor sorszáma) a NIKOVITS.CIKK tábla azon sora, ahol ckod=1?
+SELECT
+    dbms_rowid.rowid_relative_fno(ROWID) fajl,
+    dbms_rowid.rowid_block_number(ROWID) blokk,
+    dbms_rowid.rowid_row_number(ROWID) sor FROM nikovits.cikk WHERE ckod = 1;
+
+4. Mely felhasználó táblái foglalják a legtöbb helyet az adatbázisban?
+SELECT owner, SUM(bytes) FROM DBA_EXTENTS WHERE segment_type = 'TABLE' GROUP BY owner ORDER BY 2 desc 
+    FETCH FIRST 1 ROWS ONLY;
+SELECT owner, SUM(bytes) FROM DBA_SEGMENTS WHERE segment_type = 'TABLE' GROUP BY owner ORDER BY 2 desc
+    FETCH FIRST 1 ROWS ONLY;
+
+5. Melyik táblatéren van a legkevesebb index?
+SELECT tablespace_name, COUNT(*) FROM DBA_EXTENTS WHERE segment_type = 'INDEX' GROUP BY tablespace_name
+    ORDER BY 2 asc FETCH FIRST 1 ROWS ONLY;
+
+
+6. Milyen típusúak a NIKOVITS felhasználó tulajdonában levő alábbi objektumok, és mennyi helyet (hány adatblokkot) foglalnak az adatbázisban?
+LAPTOP, FIB, LIST_INDEXES(Név, Típus, Hely)
+    
+SELECT * FROM
+(select object_name from dba_objects 
+    where owner = 'NIKOVITS' AND ( object_name = 'LAPTOP' or object_name = 'FIB' or object_name = 'LIST_INDEXES' ))
+LEFT OUTER JOIN
+(select segment_name, tablespace_name, blocks from dba_extents
+    where owner = 'NIKOVITS' AND ( segment_name = 'LAPTOP' or segment_name = 'FIB' or segment_name = 'LIST_INDEXES' ))
+    ON segment_name = object_name;
+
+
+Írjunk meg egy PLSQL procedúrát, amelyik a paraméterül kapott felhasználónévre kiírja 
+a felhasználó legutoljára létrehozott tábláját, annak méretét byte-okban, valamint a létrehozás
+dátumát. Az output formátuma a következő legyen:
+
+Table_name: NNNNNN   Size: SSSSSS bytes   Created: yyyy.mm.dd.hh:mi
+
+CREATE OR REPLACE PROCEDURE newest_table(p_user VARCHAR2) IS 
+  v_obj VARCHAR2(30); v_created DATE; v_size INTEGER;
+BEGIN
+  SELECT object_name, created INTO v_obj, v_created FROM dba_objects 
+  WHERE owner=upper(p_user) AND object_type='TABLE' 
+  ORDER BY created DESC, object_name
+  FETCH FIRST 1 ROWS ONLY;
+  -- MIN function returns NULL for an empty set.
+  SELECT NVL(MIN(bytes),0) INTO v_size FROM dba_segments 
+  WHERE owner=upper(p_user) AND segment_name=v_obj AND segment_type='TABLE';
+  DBMS_OUTPUT.put_line(
+   '   Table_name: '||v_obj||
+   '   Size: '||TO_CHAR(v_size)||   ' bytes'||
+   '   Created: '||TO_CHAR(v_created, 'yyyy.mm.dd.hh24:mi'));
+EXCEPTION WHEN OTHERS THEN 
+  DBMS_OUTPUT.put_line('Non-existing User or User has no tables');
+END;
+
+
+Írjunk meg egy PLSQL procedúrát, amelyik kiírja, hogy a NIKOVITS.TABLA_123 táblának melyik 
+adatblokkjában hány sor van. (Output formátuma soronként: file_id; blokk_id -> darab)
+Vigyázat!!! Azokat az adatblokkokat is ki kell írni, amelyekben a sorok száma 0, de a tábla
+szegmenséhez tartoznak.
+
+create or replace procedure num_of_rows IS
+ cnt NUMBER;
+BEGIN 
+ FOR rec IN (select file_id, block_id, blocks from dba_extents 
+             where owner='NIKOVITS' and segment_name='TABLA_123' order by 1,2,3)
+ LOOP
+  FOR i in 1..rec.blocks LOOP
+   SELECT count(*) into cnt FROM nikovits.tabla_123 
+   WHERE dbms_rowid.rowid_relative_fno(ROWID) = rec.file_id
+   AND dbms_rowid.rowid_block_number(ROWID) = rec.block_id+i-1;
+   dbms_output.put_line(rec.file_id||';'||to_char(rec.block_id+i-1)||'->'||cnt);
+  END LOOP;
+ END LOOP;
+END;
+
+
+üres blokkok
+create procedure empty_blocks(p_owner varchar2, p_table varchar2) is
+ v_full integer := 0; v_str varchar2(1000);
+ v_sum integer := 0;
+ begin
+ select sum(blocks) into v_sum from dba_segments
+ where segment_type like 'TABLE%' and upper(owner) = upper(p_owner)
+ and upper(segment_name) = upper(p_table);
+ v_str := 'SELECT count(distinct substr(rowid,1 ,15)) from '||p_owner||'.'||p_table;
+ execute immediate v_str into v_full;
+ dbms_output.put_line('empty blocks: '||to_char(v_sum-v_full));
+ end;
+/
+
+
+lista index
+create PROCEDURE list_indexes(p_owner VARCHAR2, p_table VARCHAR2) IS
+ CURSOR curs1 IS 
+  select a.index_name, b.bytes from DBA_INDEXES a, DBA_SEGMENTS b where 
+    b.segment_type='INDEX' and
+    upper(a.owner)=upper(p_owner) and upper(p_table) = upper(a.table_name);
+  rec curs1%ROWTYPE;
+BEGIN
+    OPEN curs1;
+  LOOP
+    FETCH curs1 INTO rec;
+    EXIT WHEN curs1%NOTFOUND;
+    dbms_output.put_line(rec.index_name);
+  END LOOP;
+  CLOSE curs1;
+END;
+/
+
+
+create function nt_tablak return varchar2 is
+    result VARCHAR2(100);
+BEGIN
+    FOR i IN (select TABLE_NAME from DBA_TAB_COLUMNS where owner='NIKOVITS' and (TABLE_NAME,COLUMN_ID) in
+    (select TABLE_NAME, max(COLUMN_ID) - 1 from DBA_TAB_COLUMNS where owner='NIKOVITS' group by TABLE_NAME)
+    and DATA_TYPE='DATE' order by TABLE_NAME) LOOP
+            result = concat(result,i);
+        end loop;
+    return result;
+END;
+/
+
+
+create PROCEDURE table_print(p_kar VARCHAR2) is
+  CURSOR curs1 IS 
+  select owner,table_name from dba_tables
+  where upper(table_name) like upper(p_kar)||'%';
+  rec curs1%ROWTYPE;
+BEGIN
+  OPEN curs1;
+  LOOP
+    FETCH curs1 INTO rec;
+    EXIT WHEN curs1%NOTFOUND;
+    dbms_output.put_line(rec.owner||' - '||rec.table_name);
+  END LOOP;
+  CLOSE curs1;
+END;
+/
+
+
+create procedure zh7f IS
+BEGIN
+FOR elem IN (SELECT
+    dbms_rowid.rowid_relative_fno(ROWID) fajl,
+    dbms_rowid.rowid_block_number(ROWID) blokk
+    FROM NIKOVITS.HALLGATOK where dbms_rowid.rowid_row_number(ROWID)=0) LOOP
+
+     dbms_output.put_line(to_char(elem.fajl) || ' ' ||  to_char(elem.blokk));
+
+    end loop;
+END;
+/
+
+
+
+4. feladat
+adjuk meg a nikovits felhasználó azon tábláinak nevét, amelyekhez több mint egy extens tartozik,
+és adjuk meg ezen táblák méretét is bájtokban
+SELECT distinct owner, segment_name, count(*), sum(bytes) FROM dba_extents where segment_type = 'TABLE' group by owner, segment_name having count(*) > 1;
+
+##################################################
+
+5. feladat
+Melyik felhasználó objektumai foglalnak a legtöbb helyet a users01.dbf adattfájlban csak egy felhasznló szerepeleljen
+select owner, sum(blocks) from dba_extents where file_id IN 
+(
+    select file_id from dba_data_files where file_name LIKE '%users01.dbf'
+) group by owner FETCH FIRST 1 ROWS ONLY;
+
+
+##################################################
+
+6. feladat
+A nikovits felhasználó cikk táblájának adatai hány blokkban helyezkednek el?
+select count(*) from (
+ SELECT DISTINCT dbms_rowid.rowid_block_number(ROWID) blokk FROM nikovits.cikk);
+
+
+7.
+melyek azok az adattblokkjai amelyekben nincs egyetlen sor sem
+create or replace procedure zh7f IS
+BEGIN
+FOR elem IN (SELECT
+    dbms_rowid.rowid_relative_fno(ROWID) fajl,
+    dbms_rowid.rowid_block_number(ROWID) blokk
+    FROM NIKOVITS.HALLGATOK where dbms_rowid.rowid_row_number(ROWID)=0) LOOP
+
+     dbms_output.put_line(to_char(elem.fajl) || ' ' || to_char(elem.blokk));
+
+    end loop;
+END;
+
+
+---=== 5. feladat (10 pont) ===---
+--Adjuk meg az SH felhasnáló olyan tábláit, amelyekre létre van hozva BITMAP index és a
+--táblának nincs NUMBER(10,2) típusú oszlopa! (Táblanév)
+
+(
+    SELECT table_name
+    FROM dba_indexes
+    WHERE table_owner = 'SH' AND index_type = 'BITMAP'
+)
+MINUS
+(
+    SELECT table_name
+    FROM dba_tab_columns
+    WHERE owner = 'SH' AND data_type = 'NUMBER' AND data_precision = 10 AND data_scale = 2
+);
+
+---=== 6. feladat (10 pont) ===---
+--Adjuk meg a NIKOVITS felhasználó tulajdonában lévő cluster indexek (clusterre létrehozott
+--indexek) nevét és méretét. (Név, Méret)
+
+SELECT cluster_name nev, key_size meret 
+FROM dba_clusters 
+WHERE owner = 'NIKOVITS' AND cluster_type = 'INDEX';
+
+---=== 7. feladat (12 pont) ===---
+--Írjunk meg egy PL/SQL procedúrát, amelyik kiírja, hogy a NIKOVITS.HALLGATOK táblának
+--melyek azok az adatblokkjai, amelyekben nincs egyetlen sor sem (File_id, Block_id)
+
+-- I tried so hard :'( but got nowhere
+
+/***** Koncepció: *****/
+
+SELECT file_id, block_id AS starting_block_id, blocks AS length_in_blocks
+FROM dba_extents
+WHERE owner = 'NIKOVITS' AND segment_name = 'HALLGATOK' and segment_type = 'TABLE';
+-- Ez a lekérdezés a tábla által lefoglalt extenseket, azon belül a fájlnevet, az extens elejét és hosszát blokkokban
+    --> Megállapítható, hogy a 888, 889, ... , 896 valamint a 1503576, 1503577, ... , 1503584 blokkok vannak lefoglalva a tábla által
+SELECT DISTINCT base64_string_to_dec(substr(ROWID, 7, 3)) AS file_id, base64_string_to_dec(substr(ROWID, 10, 6)) AS block_id
+FROM nikovits.hallgatok
+ORDER BY base64_string_to_dec(substr(ROWID, 10, 6));
+-- Ez a lekérdezés tartalmazza, hogy mely blokkokban található legalább 1 sor
+    --> Lekérdezhető, mely blokkok vannak ténylegesen kihasználva
+-- E kettő különbsége a ki nem használt blokkok.
+
+-- Probléma: Hogyan lehet ezt a különbséget értelmesen végrehajtani?
+
+CREATE OR REPLACE PROCEDURE zh7f IS
+    is_not_used NUMBER := 1;
+BEGIN
+    -- for each allocated extent
+    FOR extent_row IN (
+        SELECT file_id, block_id AS starting_block_id, blocks AS length_in_blocks
+        FROM dba_extents
+        WHERE owner = 'NIKOVITS' AND segment_name = 'HALLGATOK' and segment_type = 'TABLE'
+    ) LOOP
+        -- for each allocated block in the allocated extent
+        FOR allocated_block IN extent_row.starting_block_id..extent_row.starting_block_id + extent_row.length_in_blocks LOOP
+            -- for each block containing at least 1 row
+            FOR used_block IN (
+                SELECT DISTINCT substr(ROWID, 7, 3), base64_string_to_dec(substr(ROWID, 10, 6))
+                FROM nikovits.hallgatok
+                ORDER BY base64_string_to_dec(substr(ROWID, 10, 6))
+            ) LOOP
+                -- i just realized that file names have to match as well, so i'll go and kill myself
+                IF allocated_block = used_block THEN
+                    is_not_used := 0;
+                END IF;
+            END LOOP;
+            is_not_used := 1;
+        END LOOP;
+    END LOOP;
+END;
+/
+
+
+---=== 6. feladat ===---
+/*
+Adjuk meg a NIKOVITS felhasználó azon tábláinak nevét, amelyeknek az 5. és 7. oszlopa
+ugyanolyan típusú. A hossz és a pontosság nem számít, az alaptípus legyen azonos.(Név)
+*/
+SELECT DISTINCT first.table_name AS Név
+FROM dba_tab_columns first, dba_tab_columns second
+WHERE first.owner = 'NIKOVITS' AND second.owner = first.owner  AND first.table_name = second.table_name AND 
+        first.column_id = 2 AND second.column_id = 7 AND first.data_type = second.data_type;
+        
+---=== 7. feladat ===---
+/*
+Írjunk egy PL/SQL procedúrát, amelyik kiírja, hogy a NIKOVTIS.HALLGATOK táblának
+melyek azok az adatblokkjai, amelyekben több, mint 100 sor van. (File_num, Blokk_num, Sorok)
+*/
+
+CREATE OR REPLACE PROCEDURE zhfeladat IS
+
+BEGIN
+    FOR row IN (
+        SELECT 
+            dbms_rowid.rowid_relative_fno(ROWID) file_id,
+            dbms_rowid.rowid_block_number(ROWID) block_id,
+            count(*) row_count
+        FROM nikovits.hallgatok
+        GROUP BY 
+            dbms_rowid.rowid_relative_fno(ROWID),
+            dbms_rowid.rowid_block_number(ROWID)
+        HAVING count(*) > 100
+    ) LOOP
+        dbms_output.put_line(row.file_id||' '||row.block_id||' '||row.row_count);
+    END LOOP;
+END;
+/
+
+SET SERVEROUTPUT ON;
+EXECUTE ZHFELADAT;
+
+
+
+1. Adjuk meg azoknak a tábláknak a nevét, amelyeknek 2. oszlopa DATE és utolsó oszlopa NUMBER típusú!
+select table_name
+from DBA_TAB_COLUMNS
+where COLUMN_ID = 2
+  and DATA_TYPE = 'DATE'
+intersect
+select table_name
+from DBA_TAB_COLUMNS
+where (table_name, COLUMN_ID) in
+      (select TABLE_NAME, max(COLUMN_ID) from DBA_TAB_COLUMNS group by TABLE_NAME)
+  and DATA_TYPE = 'NUMBER';
+
+2. Adjuk meg azon felhasználók nevét, akiknek van olyan partícionált táblája, melyre pontosan 3 BITMAP index van létrehozva. (Név)
+select table_owner nev
+from DBA_INDEXES
+where INDEX_TYPE = 'BITMAP'
+group by table_owner
+having count(INDEX_NAME) = 3;
+
+3. Fizikailag hol található (adatfájl neve, blokk és sor sorszáma) a NIKOVITS.CIKK tábla azon sora, ahol ckod=1000?
+select dbms_rowid.rowid_relative_fno(ROWID) fajl,
+       dbms_rowid.rowid_block_number(ROWID) blokk,
+       dbms_rowid.rowid_row_number(ROWID)   sor
+from NIKOVITS.CIKK
+where CKOD = 1000;
+
+4. Mely felhasználó indexei foglalják a legtöbb helyet az adatbázisban?
+select OWNER
+from DBA_SEGMENTS
+where SEGMENT_TYPE = 'INDEX'
+group by OWNER order by sum(BYTES) desc
+FETCH FIRST 1 ROW ONLY
+
+
+5. Melyik táblatéren van a legkevesebb tábla?
+SELECT tablespace_name, COUNT(*) FROM DBA_EXTENTS WHERE segment_type = 'TABLE' GROUP BY tablespace_name
+    ORDER BY 2 asc FETCH FIRST 1 ROWS ONLY;
+1. Adjuk meg az összes index szervezett tábla nevét, az index részük nevét, méretét és
+   a túlcsordulási részük nevét, méretét, ha van. Ha nincs túlcsordulási rész, akkor a lekérdezés
+   azt írja ki a név helyett, hogy "nincs". (IOTnév, Indexnév, bytes, Túlcsordulásnév, bytes)
+
+select IOT_NAME, _, _, IOT_TYPE, _ from DBA_TABLES where ;
+
+2. A EXAMPLE táblatér hány százaléka van lefoglalva?
+SELECT 1 - ( SELECT sum(bytes) FROM dba_free_space WHERE tablespace_name='EXAMPLE' ) / ( SELECT sum(bytes) FROM dba_data_files WHERE tablespace_name='EXAMPLE' ) as foglalt FROM dual;
+
+3. Melyik cluster tartalmazza a legtöbb táblát?
+SELECT owner, cluster_name FROM dba_tables
+WHERE cluster_name IS NOT NULL
+GROUP BY owner, cluster_name 
+HAVING COUNT(*) = (SELECT max( count(cluster_name) ) FROM dba_tables GROUP BY owner, cluster_name);
+
+4. Kinek melyik partíciónált táblájában lévő főpartíció tartalmazza a legtöbb sort?
+
+5. Kinek melyik partícionált táblájában van a legtöbb alpartíció?
+SELECT table_owner, table_name FROM dba_tab_subpartitions
+GROUP BY table_owner, table_name
+HAVING count(*) = (SELECT max( count(*) ) FROM dba_tab_subpartitions GROUP BY table_owner, table_name);
+
+
+
+Keressük meg a túlcsordulási részeket a szegmensek között és adjuk meg a méretüket.
+--------------------------------------------------------------------------------
+SELECT t.owner, t.table_name, t.iot_name, t.iot_type, s.bytes 
+FROM dba_tables t, dba_segments s
+WHERE t.owner='NIKOVITS' AND t.iot_type = 'IOT_OVERFLOW'
+AND s.owner='NIKOVITS' AND s.segment_name=t.table_name;
+
+
+--Írjunk meg egy plsql procedúrát, amelyik a paraméterül kapott táblára vonatkozóan
+--kiírja a tábla indexeit és azok méretét.
+SET SERVEROUTPUT ON
+CREATE OR REPLACE PROCEDURE list_indexes(p_owner VARCHAR2, p_table VARCHAR2) IS
+    TYPE table_type IS TABLE OF dba_segments%ROWTYPE;
+    eredmeny table_type;
+BEGIN
+    SELECT * BULK COLLECT INTO eredmeny FROM DBA_SEGMENTS WHERE segment_name IN
+(SELECT DISTINCT index_name FROM DBA_INDEXES
+    WHERE UPPER(table_owner) = UPPER(p_owner) AND UPPER(table_name) = UPPER(p_table));
+    FOR i IN 1..eredmeny.COUNT LOOP
+        dbms_output.put_line(eredmeny(i).segment_name || ': ' || eredmeny(i).bytes);
+    END LOOP;
+END;
+
+
+--Írjunk meg egy plsql procedúrát, amelyik a paraméterül kapott index szervezett
+--tábláról kiírja a tábla méretét.
+--Vigyázzunk, mert a táblának lehet index és túlcsordulási szegmense is!
+CREATE OR REPLACE PROCEDURE iot_tables(p_owner varchar2, p_tabla varchar2) IS
+    meret number  := 0;
+    helper number := 0;
+BEGIN
+    FOR rec in (
+        select owner, table_name from dba_tables where (upper(table_name) = upper(p_tabla) or upper(iot_name) = upper(p_tabla)) and upper(owner) = upper(p_owner) and iot_type LIKE 'IOT%' 
+    )
+    LOOP
+        select sum(bytes) into helper from dba_segments where segment_name LIKE rec.table_name;
+        helper := NVL(helper, 0);
+        meret := meret + helper;
+    END LOOP;
+    dbms_output.put_line(upper(p_owner) || ' ' || upper(p_tabla) || ' nevu tablajanak merete: ' || meret);
+END;
+
+SET SERVEROUTPUT ON;
+execute iot_tables('nikovits', 'cikk_iot');
+            </pre>
+        </p>
+    </div>
+</body>
+</html>

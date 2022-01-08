@@ -16,6 +16,7 @@
 </head>
 <body>
     <nav>
+        <a href="/shop">Shop</a>
         @livewire('cart-counter')
     </nav>
 

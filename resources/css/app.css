@@ -105,6 +105,25 @@
 .product-details form {
     text-align: center;
 }
+.product-details form select {
+    color: #d2b49c;
+    background-color: white;
+    border: #d2b49c 1px solid;
+    font-size: 15px;
+    font-family: 'Montserrat';
+    width: 75% !important;
+    padding: .6rem;
+    font-weight: bold;
+}
+.product-details form option:hover {
+    box-shadow: 0 0 10px 100px #000 inset;
+    background: #000;
+    color: white;
+}
+.product-details form option:checked {
+    box-shadow: 0 0 10px 100px #d2b49c inset !important;
+    color: #d2b49c;
+}
 
 
 /* More images */
@@ -120,4 +139,30 @@
 }
 .product-details h5 {
     font-weight: 400;
+}
+
+/* Cart page */
+.cart-forms button {
+    padding-bottom: 0.2rem;
+    background-color: white;
+    color: #d2b49c;
+    border: #d2b49c 1px solid;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    transition: 0.4s;
+}
+.cart-forms button:hover {
+    padding-bottom: 0.2rem;
+    background-color: #d2b49c;
+    color: white;
+    border: #d2b49c 1px solid;
+    transition: 0.5s;
+}
+.cart-input {
+    border: none;
+    width: 40px;
+    text-align: center;
 }

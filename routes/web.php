@@ -22,3 +22,5 @@ Route::get('/product/{slug}', [ShopController::class, 'product']);
 Route::get('/cart', [ShopController::class, 'cartPage']);
 
 Route::post('/addToCart', [ShopController::class, 'addToCart'])->name('addToCart');
+Route::post('/removeFromCart', [ShopController::class, 'removeFromCart'])->name('removeFromCart');
+Route::post('pay', [ShopController::class, 'startPayment'])->name('pay');

@@ -25,8 +25,14 @@
 
                     <form id="buyForm" action="{{ route('addToCart') }}" method="POST">
                         @csrf
-                        <input name="size_id" type="text" hidden value="{{ '1' }}">
-                        <input name="size" type="text" hidden value="{{ 'XS' }}">
+                        <?php
+                            $sizes = \App\Models\Size::orderBy('name', 'DESC')->get()->where('product_id', $product->id);
+                        ?>
+                        <select name="size">
+                            @foreach ($sizes as $size)
+                                <option value="{{$size->name}}">{{$size->name}}</option>
+                            @endforeach
+                        </select>
                         <input name="product_id" type="text" hidden value="{{ $product['id'] }}">
                         <button class="add-to-cart mt-3 w-100">
                             Add to cart
