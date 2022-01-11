@@ -22,7 +22,6 @@
                         created="{{$product['created_at']}}"
                     ></x-product>
                 @endforeach
-
             </div>
         </div>
         <div class="text-center m-auto mt-3 w-100">

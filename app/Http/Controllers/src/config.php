@@ -42,15 +42,15 @@ $config = [
     'SANDBOX' => true,
 
     //common return URL
-    'URL' => 'http://' . $_SERVER['HTTP_HOST'] . '/otp/back.php',
+    //'URL' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-good-order',
 
     //optional uniq URL for events
-    /*
-    'URLS_SUCCESS' => 'http://' . $_SERVER['HTTP_HOST'] . '/success.php',       //url for successful payment
-    'URLS_FAIL' => 'http://' . $_SERVER['HTTP_HOST'] . '/fail.php',             //url for unsuccessful
-    'URLS_CANCEL' => 'http://' . $_SERVER['HTTP_HOST'] . '/cancel.php',         //url for cancell on payment page
-    'URLS_TIMEOUT' => 'http://' . $_SERVER['HTTP_HOST'] . '/timeout.php',       //url for payment page timeout
-    */
+    
+    'URLS_SUCCESS' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-good-order',       //url for successful payment
+    'URLS_FAIL' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',             //url for unsuccessful
+    'URLS_CANCEL' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',         //url for cancell on payment page
+    'URLS_TIMEOUT' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',       //url for payment page timeout
+
 
     'GET_DATA' => (isset($_GET['r']) && isset($_GET['s'])) ? ['r' => $_GET['r'], 's' => $_GET['s']] : [],
     'POST_DATA' => $_POST,

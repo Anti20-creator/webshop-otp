@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Basket;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use SimplePayStart;
 
@@ -25,6 +27,14 @@ class ShopController extends Controller
         $category = Category::all()->where('id', $product['category_id'])->first()['name'];
 
         return view('product-details', compact('product', 'category'));
+    }
+
+    public function categoryPage($category)
+    {
+        $category_id = Category::all()->where('name', $category)->first()->id;
+        $products = Product::where('category_id', $category_id)->paginate(12);
+
+        return view('pages.category', compact('products'));
     }
 
     public function cartPage()
@@ -53,7 +63,45 @@ class ShopController extends Controller
         return $result;
     }
 
-    public function startPayment()
+    public function successOrderIndex()
+    {
+        if (count(explode('process-good-order', url()->previous())) > 1) {
+            return view('pages.success-order');
+        }
+        return abort(404);
+    }
+    
+    public function processGoodOrder()
+    {
+        $items = Session::get('cart')->items;
+        $data = Session::get('customer');
+        DB::table('orders')->insert([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'city' => $data['city'],
+            'zip' => $data['zip'],
+            'address' => $data['address'],
+            'phone' => $data['phone'],
+            'transaction_id' => $data['transaction_id'],
+            'order_ref' => $data['order_ref'],
+            'items' => json_encode($items)
+        ]);
+
+        Session::put('cart', null);
+        return redirect('/success-order');
+    }
+
+    public function processBadOrder()
+    {
+        return redirect('/success-order');
+    }
+
+    public function orderErrorIndex()
+    {
+        return view('pages.order-error');
+    }
+
+    public function placeOrder(Request $request)
     {
         require_once 'src/config.php';
         require_once 'src/SimplePayV21.php';
@@ -80,36 +128,13 @@ class ShopController extends Controller
             $trx->addItems(
                 array(
                     'ref' => $item['item']['id'],
-                    'title' => $item['item']['name'],
+                    'title' => $item['item']['name']." (".$item['size'].")",
                     //'desc' => $item['item']['description'],
                     'amount' => $item['qty'],
                     'price' => $item['item']['price']
                 )
             );
         }
-        /*
-        $trx->addItems(
-            array(
-                'ref' => 'Product ID 1',
-                'title' => 'Product name 1',
-                'desc' => 'Product description 1',
-                'amount' => '1',
-                'price' => '5',
-                'tax' => '0',
-                )
-        );
-
-        $trx->addItems(
-            array(
-                'ref' => 'Product ID 2',
-                'title' => 'Product name 2',
-                'desc' => 'Product description 2',
-                'amount' => '1',
-                'price' => '2',
-                'tax' => '0',
-                )
-        );*/
-
 
         // OPTIONAL DATA INPUT ON PAYMENT PAGE
         //-----------------------------------------------------------------------------------------
@@ -118,40 +143,10 @@ class ShopController extends Controller
         //$trx->addData('maySelectDelivery', ['HU']);
 
 
-        // SHIPPING COST
-        //-----------------------------------------------------------------------------------------
-        //$trx->addData('shippingCost', 20);
-
-
-        // DISCOUNT
-        //-----------------------------------------------------------------------------------------
-        //$trx->addData('discount', 10);
-
-
         // ORDER REFERENCE NUMBER
         // uniq oreder reference number in the merchant system
         //-----------------------------------------------------------------------------------------
         $trx->addData('orderRef', str_replace(array('.', ':', '/'), "", @$_SERVER['SERVER_ADDR']) . @date("U", time()) . rand(1000, 9999));
-
-
-        // CUSTOMER
-        // customer's name
-        //-----------------------------------------------------------------------------------------
-        //$trx->addData('customer', 'v2 SimplePay Teszt');
-
-
-        // customer's registration mehod
-        // 01: guest
-        // 02: registered
-        // 05: third party
-        //-----------------------------------------------------------------------------------------
-        $trx->addData('threeDSReqAuthMethod', '02');
-
-
-        // EMAIL
-        // customer's email
-        //-----------------------------------------------------------------------------------------
-        $trx->addData('customerEmail', 'sdk_test@otpmobil.com');
 
 
         // LANGUAGE
@@ -159,17 +154,6 @@ class ShopController extends Controller
         //-----------------------------------------------------------------------------------------
         $trx->addData('language', 'HU');
 
-
-        // TWO STEP
-        // true, or false
-        // If this field does not exist is equal false value
-        // Possibility of two step needs IT support setting
-        //-----------------------------------------------------------------------------------------
-        /*
-        if (isset($_REQUEST['twoStep'])) {
-            $trx->addData('twoStep', true);
-        }
-        */
 
         // TIMEOUT
         // 2018-09-15T11:25:37+02:00
@@ -189,15 +173,13 @@ class ShopController extends Controller
         //-----------------------------------------------------------------------------------------
 
         // common URL for all result
-        $trx->addData('url', $config['URL']);
+        //$trx->addData('url', $config['URL']);
 
         // uniq URL for every result type
-        /*
-            $trx->addGroupData('urls', 'success', $config['URLS_SUCCESS']);
-            $trx->addGroupData('urls', 'fail', $config['URLS_FAIL']);
-            $trx->addGroupData('urls', 'cancel', $config['URLS_CANCEL']);
-            $trx->addGroupData('urls', 'timeout', $config['URLS_TIMEOUT']);
-        */
+        $trx->addGroupData('urls', 'success', $config['URLS_SUCCESS']);
+        $trx->addGroupData('urls', 'fail', $config['URLS_FAIL']);
+        $trx->addGroupData('urls', 'cancel', $config['URLS_CANCEL']);
+        $trx->addGroupData('urls', 'timeout', $config['URLS_TIMEOUT']);
 
 
         // Redirect from Simple app to merchant app
@@ -205,7 +187,7 @@ class ShopController extends Controller
         //$trx->addGroupData('mobilApp', 'simpleAppBackUrl', 'myAppS01234://payment/123456789');
 
 
-        // INVOICE DATA
+        /*// INVOICE DATA
         //-----------------------------------------------------------------------------------------
         $trx->addGroupData('invoice', 'name', 'SimplePay V2 Tester');
         //$trx->addGroupData('invoice', 'company', '');
@@ -215,22 +197,7 @@ class ShopController extends Controller
         $trx->addGroupData('invoice', 'zip', '1111');
         $trx->addGroupData('invoice', 'address', 'Address 1');
         //$trx->addGroupData('invoice', 'address2', 'Address 2');
-        //$trx->addGroupData('invoice', 'phone', '06201234567');
-
-
-        // DELIVERY DATA
-        //-----------------------------------------------------------------------------------------
-        /*
-        $trx->addGroupData('delivery', 'name', 'SimplePay V2 Tester');
-        $trx->addGroupData('delivery', 'company', '');
-        $trx->addGroupData('delivery', 'country', 'hu');
-        $trx->addGroupData('delivery', 'state', 'Budapest');
-        $trx->addGroupData('delivery', 'city', 'Budapest');
-        $trx->addGroupData('delivery', 'zip', '1111');
-        $trx->addGroupData('delivery', 'address', 'Address 1');
-        $trx->addGroupData('delivery', 'address2', '');
-        $trx->addGroupData('delivery', 'phone', '06203164978');
-        */
+        //$trx->addGroupData('invoice', 'phone', '06201234567');*/
 
 
         //payment starter element
@@ -238,25 +205,74 @@ class ShopController extends Controller
         // button: (default setting)
         // link: link to payment page
         //-----------------------------------------------------------------------------------------
-        $trx->formDetails['element'] = 'button';
+        $trx->formDetails['element'] = 'auto';
+
+        // SHIPPING COST
+        //-----------------------------------------------------------------------------------------
+        $trx->addData('shippingCost', 0);
 
 
+        // DISCOUNT
+        //-----------------------------------------------------------------------------------------
+        $trx->addData('discount', 0);
+
+        // CUSTOMER
+        // customer's name
+        //-----------------------------------------------------------------------------------------
+        $trx->addData('customer', $request->input('customer_name'));
+
+
+        // customer's registration mehod
+        // 01: guest
+        // 02: registered
+        // 05: third party
+        //-----------------------------------------------------------------------------------------
+        $trx->addData('threeDSReqAuthMethod', '01');
+
+        // EMAIL
+        // customer's email
+        //-----------------------------------------------------------------------------------------
+        $trx->addData('customerEmail', $request->input('email'));
+
+        // DELIVERY DATA
+        //-----------------------------------------------------------------------------------------
+        $trx->addGroupData('delivery', 'name', $request->input('customer_name'));
+        $trx->addGroupData('delivery', 'country', 'hu');
+        $trx->addGroupData('delivery', 'city', $request->input('city'));
+        $trx->addGroupData('delivery', 'zip', $request->input('zip'));
+        $trx->addGroupData('delivery', 'address', $request->input('address'));
+        $trx->addGroupData('delivery', 'phone', $request->input('phone'));
+
+        Session::remove('customer');
+        
         //create transaction in SimplePay system
         //-----------------------------------------------------------------------------------------
         $trx->runStart();
-
+        
+        Session::put('customer', array(
+            'name' => $request->input('customer_name'),
+            'email' => $request->input('email'),
+            'city' => $request->input('city'),
+            'zip' => $request->input('zip'),
+            'address' => $request->input('address'),
+            'phone' => $request->input('phone'),
+            'transaction_id' => $trx->getReturnData()['transactionId'],
+            'order_ref' => $trx->getReturnData()['orderRef']
+        ));
 
         //create html form for payment using by the created transaction
         //-----------------------------------------------------------------------------------------
         $trx->getHtmlForm();
+        //$form = $trx->returnData['form'];
+        
+        $link = explode('"', explode('action="', $trx->returnData['form'])[1])[0];
+        return redirect($link);
+    }
 
+    public function startPayment()
+    {
 
-        //print form
-        //-----------------------------------------------------------------------------------------
-        print $trx->returnData['form'];
-
-
-        // test data
+        /*// test data
         //-----------------------------------------------------------------------------------------
         print "API REQUEST";
         print "<pre>";
@@ -266,6 +282,8 @@ class ShopController extends Controller
         print "API RESULT";
         print "<pre>";
         print_r($trx->getReturnData());
-        print "</pre>";
+        print "</pre>";*/
+
+        return view('pages.order-informations');
     }
 }

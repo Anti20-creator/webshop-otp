@@ -1,3 +1,151 @@
+/* Colors */
+$main-color: #d2b49c;
+$secondary-color: #7f3c39;
+
+/* Navbar */
+
+.navbar {
+    background-color: $main-color !important;
+    z-index: 1000 !important;
+}
+.navbar a {
+    color: white !important;
+}
+.navbar .dropdown-menu {
+    background-color: $main-color !important;
+    text-transform: capitalize;
+}
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+.navbar .dropdown-menu .dropdown-item:hover {
+    background-color: white;
+    color: $main-color !important;
+}
+.badge:after{
+    content:attr(value);
+    font-size:14px;
+    color: #fff;
+    background: #df3e3d;
+    border-radius:50%;
+    padding: 0 5px;
+    position:relative;
+    left:-8px;
+    top:-10px;
+    opacity:0.9;
+}
+.navbar .cart-wrapper {
+    text-align: right !important;
+}
+
+/* Home section */
+
+.home-img {
+    height: 100vh;
+    background-image: url(https://www.kindaclothing.eu/uploads/swiper_1638464690_1920w.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;   
+}
+.logo-with-hr svg {
+    width: 200px;
+    padding: 1rem;
+}
+.logo-with-hr div {
+    height: 1px;
+    background-color: $main-color;
+    width: 100%;
+}
+.logo-with-hr path, .logo-with-hr polygon, .logo-with-hr rect {
+    fill: $main-color;
+}
+.shop-the-look {
+    background-color: $secondary-color;
+    color: white;
+    text-transform: uppercase;
+    border: 1px solid $secondary-color;
+    transition: 0.4s;
+    padding: .6rem 3rem;
+}
+.shop-the-look:hover {
+    color: $secondary-color;
+    background-color: white;
+    transition: 0.5s;
+}
+li.page-item {
+    width: 35px;
+    height: 35px;
+}
+li.page-item *{
+    width: 100%;
+    height: 100%;
+}
+li.page-item span, li.page-item a {
+    border-radius: 50%;
+}
+li.page-item.active span {
+    background-color: $main-color !important;
+    border: 1px solid $main-color !important;
+}
+li.page-item a {
+    border: 1px solid $main-color !important;
+    color: $main-color !important;
+}
+li.page-item a:hover {
+    border: 1px solid $main-color !important;
+    background-color: $main-color !important;
+    color: white !important;
+}
+li.page-item .page-link {
+    border-radius: 50% !important;
+}
+.page-item {
+    position: relative;
+    margin: .3rem;
+}
+.page-item > * {
+    border: 1px solid $main-color !important;
+    position: absolute !important;
+    color: $main-color;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+ul.pagination {
+    justify-content: center;
+}
+.font-weight-normal {
+    font-weight: 400 !important;
+}
+.cart-box {
+    border: 1.3px solid $main-color;
+    font-family: 'Montserrat';
+}
+.order-form input, .cart-form input {
+    width: 100%;
+    padding: 0.45rem 0.5rem;
+    border-radius: 0;
+    border: 1px solid $main-color;
+}
+input.form-control:focus {
+    box-shadow: none !important;
+    border: 1px solid $main-color;
+    outline: none !important;
+}
+.order-form input[type="submit"], .cart-form input[type="submit"] {
+    background-color: $main-color;
+    color: white;
+    text-transform: uppercase;
+    transition: 0.4s;
+}
+.cart-form input[type="submit"]:hover {
+    color: $main-color;
+    background-color: white;
+    transition: 0.5s;
+}
+
 /* Product Component */
 
 .product-holder a {
@@ -75,8 +223,8 @@
     position: absolute;
     top: 8%;
     left: 0;
-    width: 20%;
-    font-size: 14px;
+    padding: 2px 8px 1px 8px;
+    font-size: 13px;
 }
 .product-holder .image-holder .new p {
     margin: 0;

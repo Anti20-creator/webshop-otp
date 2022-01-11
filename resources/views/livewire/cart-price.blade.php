@@ -1,3 +1,3 @@
 <div>
-    <p> {{Session::get('cart')->totalPrice}} Ft </p>
+    <h4 class="font-weight-normal m-0"> {{$price}} Ft </h4>
 </div>

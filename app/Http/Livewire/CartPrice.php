@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
 class CartPrice extends Component
@@ -10,6 +11,7 @@ class CartPrice extends Component
     
     public function render()
     {
-        return view('livewire.cart-price');
+        $price = Session::has('cart') ? Session::get('cart')->totalPrice : 0;
+        return view('livewire.cart-price', compact('price'));
     }
 }

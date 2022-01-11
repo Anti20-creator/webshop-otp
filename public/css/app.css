@@ -1,168 +1,358 @@
+/* Colors */
+/* Navbar */
+.navbar {
+  background-color: #d2b49c !important;
+  z-index: 1000 !important;
+}
+
+.navbar a {
+  color: white !important;
+}
+
+.navbar .dropdown-menu {
+  background-color: #d2b49c !important;
+  text-transform: capitalize;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+  background-color: white;
+  color: #d2b49c !important;
+}
+
+.badge:after {
+  content: attr(value);
+  font-size: 14px;
+  color: #fff;
+  background: #df3e3d;
+  border-radius: 50%;
+  padding: 0 5px;
+  position: relative;
+  left: -8px;
+  top: -10px;
+  opacity: 0.9;
+}
+
+.navbar .cart-wrapper {
+  text-align: right !important;
+}
+
+/* Home section */
+.home-img {
+  height: 100vh;
+  background-image: url(https://www.kindaclothing.eu/uploads/swiper_1638464690_1920w.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+}
+
+.logo-with-hr svg {
+  width: 200px;
+  padding: 1rem;
+}
+
+.logo-with-hr div {
+  height: 1px;
+  background-color: #d2b49c;
+  width: 100%;
+}
+
+.logo-with-hr path, .logo-with-hr polygon, .logo-with-hr rect {
+  fill: #d2b49c;
+}
+
+.shop-the-look {
+  background-color: #7f3c39;
+  color: white;
+  text-transform: uppercase;
+  border: 1px solid #7f3c39;
+  transition: 0.4s;
+  padding: 0.6rem 3rem;
+}
+
+.shop-the-look:hover {
+  color: #7f3c39;
+  background-color: white;
+  transition: 0.5s;
+}
+
+li.page-item {
+  width: 35px;
+  height: 35px;
+}
+
+li.page-item * {
+  width: 100%;
+  height: 100%;
+}
+
+li.page-item span, li.page-item a {
+  border-radius: 50%;
+}
+
+li.page-item.active span {
+  background-color: #d2b49c !important;
+  border: 1px solid #d2b49c !important;
+}
+
+li.page-item a {
+  border: 1px solid #d2b49c !important;
+  color: #d2b49c !important;
+}
+
+li.page-item a:hover {
+  border: 1px solid #d2b49c !important;
+  background-color: #d2b49c !important;
+  color: white !important;
+}
+
+li.page-item .page-link {
+  border-radius: 50% !important;
+}
+
+.page-item {
+  position: relative;
+  margin: 0.3rem;
+}
+
+.page-item > * {
+  border: 1px solid #d2b49c !important;
+  position: absolute !important;
+  color: #d2b49c;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+ul.pagination {
+  justify-content: center;
+}
+
+.font-weight-normal {
+  font-weight: 400 !important;
+}
+
+.cart-box {
+  border: 1.3px solid #d2b49c;
+  font-family: "Montserrat";
+}
+
+.order-form input, .cart-form input {
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0;
+  border: 1px solid #d2b49c;
+}
+
+input.form-control:focus {
+  box-shadow: none !important;
+  border: 1px solid #d2b49c;
+  outline: none !important;
+}
+
+.order-form input[type=submit], .cart-form input[type=submit] {
+  background-color: #d2b49c;
+  color: white;
+  text-transform: uppercase;
+  transition: 0.4s;
+}
+
+.cart-form input[type=submit]:hover {
+  color: #d2b49c;
+  background-color: white;
+  transition: 0.5s;
+}
+
 /* Product Component */
-
 .product-holder a {
-    text-decoration: none;
-    color: black;
-}
-.product-holder a:hover {
-    text-decoration: none;
-    color: black;
-}
-.product-holder .image {
-    height: 100%;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    width: 100%;
-    transition: 0.5s;
-}
-.product-holder .image-holder {
-    height: 32vw;
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-}
-.product-holder:hover .image {
-    transform: scale(1.2);
-    overflow: hidden;
-    transition: 0.4s;
-    cursor: pointer;
-}
-.product-holder .name-with-line {
-    display: flex;
-    align-items: center;
-    margin-top: 7px;
-    font-family: 'Montserrat';
-}
-.product-holder .name-with-line .name {
-    margin-right: 10px;
-    text-transform: uppercase;
-    max-width: 75%;
-    line-height: 20px;
-    font-size: 15px;
-    transition: 0.5s;
-}
-.product-holder .details .price {
-    font-family: 'Questrial';
-}
-.product-holder .name-with-line .line {
-    margin-top: 10px;
-    flex: 1;
-    height: 1px;
-    background-color: black;
-}
-.product-holder:hover .name-with-line .name {
-    margin-left: 10px;
-    transition: 0.4s;
-}
-.product-holder .image-holder .out-of-stock {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.2) 100%);
-    color: black;
-    position: absolute;
-    bottom: 5%;
-    left: 0;
-    width: 46%;
-}
-.product-holder .image-holder .out-of-stock p {
-    margin: 0;
-    padding: 0.3rem;
-    text-align: center;
-    font-family: 'Questrial';
-}
-.product-holder .image-holder .new {
-    background: #df3e3d;
-    color: white;
-    position: absolute;
-    top: 8%;
-    left: 0;
-    width: 20%;
-    font-size: 14px;
-}
-.product-holder .image-holder .new p {
-    margin: 0;
-    padding: 0.3rem;
-    text-align: center;
-    text-transform: uppercase;
-    font-family: 'Questrial';
-}
-.product-details form button {
-    color: white;
-    background-color: #d2b49c;
-    border: none;
-    font-size: 15px;
-    font-family: 'Montserrat';
-    width: 75% !important;
-    padding: .6rem;
-    font-weight: bold;
-    transition: 0.4s;
-}
-.product-details form button:hover {
-    background-color: white;
-    color: #d2b49c;
-    border: #d2b49c 1px solid;
-    transition: 0.5s;
-}
-.product-details form {
-    text-align: center;
-}
-.product-details form select {
-    color: #d2b49c;
-    background-color: white;
-    border: #d2b49c 1px solid;
-    font-size: 15px;
-    font-family: 'Montserrat';
-    width: 75% !important;
-    padding: .6rem;
-    font-weight: bold;
-}
-.product-details form option:hover {
-    box-shadow: 0 0 10px 100px #000 inset;
-    background: #000;
-    color: white;
-}
-.product-details form option:checked {
-    box-shadow: 0 0 10px 100px #d2b49c inset !important;
-    color: #d2b49c;
+  text-decoration: none;
+  color: black;
 }
 
+.product-holder a:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.product-holder .image {
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 100%;
+  transition: 0.5s;
+}
+
+.product-holder .image-holder {
+  height: 32vw;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.product-holder:hover .image {
+  transform: scale(1.2);
+  overflow: hidden;
+  transition: 0.4s;
+  cursor: pointer;
+}
+
+.product-holder .name-with-line {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+  font-family: "Montserrat";
+}
+
+.product-holder .name-with-line .name {
+  margin-right: 10px;
+  text-transform: uppercase;
+  max-width: 75%;
+  line-height: 20px;
+  font-size: 15px;
+  transition: 0.5s;
+}
+
+.product-holder .details .price {
+  font-family: "Questrial";
+}
+
+.product-holder .name-with-line .line {
+  margin-top: 10px;
+  flex: 1;
+  height: 1px;
+  background-color: black;
+}
+
+.product-holder:hover .name-with-line .name {
+  margin-left: 10px;
+  transition: 0.4s;
+}
+
+.product-holder .image-holder .out-of-stock {
+  background: linear-gradient(to right, white 50%, rgba(255, 255, 255, 0.2) 100%);
+  color: black;
+  position: absolute;
+  bottom: 5%;
+  left: 0;
+  width: 46%;
+}
+
+.product-holder .image-holder .out-of-stock p {
+  margin: 0;
+  padding: 0.3rem;
+  text-align: center;
+  font-family: "Questrial";
+}
+
+.product-holder .image-holder .new {
+  background: #df3e3d;
+  color: white;
+  position: absolute;
+  top: 8%;
+  left: 0;
+  padding: 2px 8px 1px 8px;
+  font-size: 13px;
+}
+
+.product-holder .image-holder .new p {
+  margin: 0;
+  padding: 0.3rem;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: "Questrial";
+}
+
+.product-details form button {
+  color: white;
+  background-color: #d2b49c;
+  border: none;
+  font-size: 15px;
+  font-family: "Montserrat";
+  width: 75% !important;
+  padding: 0.6rem;
+  font-weight: bold;
+  transition: 0.4s;
+}
+
+.product-details form button:hover {
+  background-color: white;
+  color: #d2b49c;
+  border: #d2b49c 1px solid;
+  transition: 0.5s;
+}
+
+.product-details form {
+  text-align: center;
+}
+
+.product-details form select {
+  color: #d2b49c;
+  background-color: white;
+  border: #d2b49c 1px solid;
+  font-size: 15px;
+  font-family: "Montserrat";
+  width: 75% !important;
+  padding: 0.6rem;
+  font-weight: bold;
+}
+
+.product-details form option:hover {
+  box-shadow: 0 0 10px 100px #000 inset;
+  background: #000;
+  color: white;
+}
+
+.product-details form option:checked {
+  box-shadow: 0 0 10px 100px #d2b49c inset !important;
+  color: #d2b49c;
+}
 
 /* More images */
-
 .more-images > div {
-    background-size: cover;
-    background-position: center;
-    height: 12rem;
+  background-size: cover;
+  background-position: center;
+  height: 12rem;
 }
+
 .product-details h2 {
-    text-transform: uppercase;
-    font-weight: 400;
+  text-transform: uppercase;
+  font-weight: 400;
 }
+
 .product-details h5 {
-    font-weight: 400;
+  font-weight: 400;
 }
 
 /* Cart page */
 .cart-forms button {
-    padding-bottom: 0.2rem;
-    background-color: white;
-    color: #d2b49c;
-    border: #d2b49c 1px solid;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
-    transition: 0.4s;
+  padding-bottom: 0.2rem;
+  background-color: white;
+  color: #d2b49c;
+  border: #d2b49c 1px solid;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  transition: 0.4s;
 }
+
 .cart-forms button:hover {
-    padding-bottom: 0.2rem;
-    background-color: #d2b49c;
-    color: white;
-    border: #d2b49c 1px solid;
-    transition: 0.5s;
+  padding-bottom: 0.2rem;
+  background-color: #d2b49c;
+  color: white;
+  border: #d2b49c 1px solid;
+  transition: 0.5s;
 }
+
 .cart-input {
-    border: none;
-    width: 40px;
-    text-align: center;
+  border: none;
+  width: 40px;
+  text-align: center;
 }

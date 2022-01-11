@@ -14,8 +14,6 @@ class Basket extends Model
     public $totalQty = 0;
     public $totalPrice = 0;
 
-    public $test = 0;
-
     public function __construct($oldCart) {
 
         if($oldCart) {
@@ -23,6 +21,10 @@ class Basket extends Model
             $this->totalQty = $oldCart->totalQty;
             $this->totalPrice = $oldCart->totalPrice;
             $this->test = $oldCart->test;
+        }else{
+            $this->items = [];
+            $this->totalQty = 0;
+            $this->totalPrice = 0;
         }
 
     }

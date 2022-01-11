@@ -9,9 +9,9 @@
                         <div class="col p-2">
                             <img class="w-100" src="{{json_decode($item['item']->images)[0]}}" />
                         </div>
-                        <div class="col p-2">
-                            <p>{{$item['item']->name}} ({{ $item['size'] }})</p>
-                            <p>{{$item['item']->price}} Ft</p>
+                        <div class="col d-flex p-2 flex-column justify-content-center">
+                            <p class="m-0 text-uppercase">{{$item['item']->name}} ({{ $item['size'] }})</p>
+                            <p class="m-0">{{$item['item']->price}} Ft</p>
                             <br>
                             <div class="d-flex">
                                 <form class="cart-forms remove" action="{{ route('removeFromCart') }}" method="POST">
@@ -34,12 +34,17 @@
                     </div>
                 @endforeach
             </div>
-            <div class="col-6">
-                @livewire('cart-price')
-                <form action="/pay" method="POST">
-                    @csrf
-                    <button>Pay</button>
-                </form>
+            <div class="col-6 p-3">
+                <h5 class="text-uppercase font-weight-normal">Összesítés</h5>
+                <div class="cart-box p-4">
+                    <p class="m-0">Fizetendő összesen:</p>
+                    @livewire('cart-price')
+                    <form class="mt-3 cart-form" action="/pay" method="POST">
+                        @csrf
+                        <input class="form-control m-0" type="text" placeholder="Kupon kód">
+                        <input class="form-control m-0" type="submit" value="Fizetés">
+                    </form>
+                </div>
             </div>
         </div>
     </div>

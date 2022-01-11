@@ -988,10 +988,15 @@ trait Communication
         $result = Http::withHeaders([
             'Accept-language' => 'EN',
             'Content-type' => 'application/json',
-            'Signature' => explode(': ', $headers[2])[1]
+            'Signature' => trim(explode(': ', $headers[2])[1])
         ])->post($url, json_decode($data, true));
         $this->result = $result->json();
-        print_r($headers);
+        /*print_r([
+            'Accept-language' => 'EN',
+            'Content-type' => 'application/json',
+            'Signature' => explode(': ', $headers[2])[1]
+        ]);
+        print_r($headers);*/
         /*$this->curlInfo = curl_getinfo($curlData);
         try {
             if (curl_errno($curlData)) {

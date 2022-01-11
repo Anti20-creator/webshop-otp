@@ -20,7 +20,8 @@ class ProductSeeder extends Seeder
         $categories = ['basic', 'comfy'];
         foreach($categories as $category) { 
             DB::table('categories')->insert([
-                'name' => $category
+                'name' => $category,
+                'slug' => implode('-', explode(' ', $category))
             ]);
         }
 
