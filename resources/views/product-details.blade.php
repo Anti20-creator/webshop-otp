@@ -6,13 +6,29 @@
             <div class="row product-details">
                 <div class="col-md-6 p-4">
                     <?php $img = json_decode($product['images'])[0]; ?>
-                    <?php $images = json_decode($product['images']); array_shift($images); ?>
-                    <img src="{{$img}}" alt="" class="w-100">
-                    <div class="d-flex more-images">
+                    <?php $images = json_decode($product['images']); ?>
+                    <div
+                      style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+                      class="swiper mySwiper2"
+                    >
+                      <div class="swiper-wrapper">
                         @foreach ($images as $image)
-                            <div class="m-2 w-25" style="background-image:url({{$image}});">
+                            <div class="swiper-slide">
+                                <img src="{{$image}}" class="w-100">
                             </div>
                         @endforeach
+                      </div>
+                      <div class="swiper-button-next"></div>
+                      <div class="swiper-button-prev"></div>
+                    </div>
+                    <div thumbsSlider="" class="swiper mySwiper mt-2">
+                        <div class="swiper-wrapper">
+                            @foreach ($images as $image)
+                                <div class="swiper-slide">
+                                    <img src="{{$image}}" class="w-100">
+                                </div>
+                            @endforeach
+                        </div>                        
                     </div>
                 </div>
                 <div class="col-md-6 p-4">
@@ -25,9 +41,6 @@
 
                     <form id="buyForm" action="{{ route('addToCart') }}" method="POST">
                         @csrf
-                        <?php
-                            $sizes = \App\Models\Size::orderBy('name', 'DESC')->get()->where('product_id', $product->id);
-                        ?>
                         <select name="size">
                             @foreach ($sizes as $size)
                                 <option value="{{$size->name}}">{{$size->name}}</option>
@@ -44,6 +57,24 @@
     </div>
 
     <script>
+
+        var swiper = new Swiper(".mySwiper", {
+        spaceBetween: 10,
+        slidesPerView: 4,
+        freeMode: true,
+        watchSlidesProgress: true,
+      });
+      var swiper2 = new Swiper(".mySwiper2", {
+        loop: true,
+        spaceBetween: 10,
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        thumbs: {
+          swiper: swiper,
+        },
+      });
         $('#buyForm').submit(function(e) {
             e.preventDefault();
 

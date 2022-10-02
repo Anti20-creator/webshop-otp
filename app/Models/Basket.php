@@ -32,8 +32,8 @@ class Basket extends Model
     public function add(Request $request) {
         $size = $request->input('size');
         $id = $request->input('product_id');
-        $item = Product::all()->where('id', $id)->first();
-        $variantId = Size::all()->where('product_id', $id)->where('name', $size)->first()->id;
+        $item = Product::where('id', $id)->first();
+        $variantId = Size::where('product_id', $id)->where('name', $size)->first()->id;
 
 
         $storedItem = ['qty' => 0, 'price' => $item->price, 'item' => $item, 'size' => $size, 'variantId' => $variantId];

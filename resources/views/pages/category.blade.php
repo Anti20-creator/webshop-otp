@@ -11,7 +11,7 @@
                 @foreach ($products as $product)
                     <?php
                         $img = json_decode($product['images'])[0]; 
-                        $quantity = \App\Models\Size::all()->where('product_id', $product['id'])->sum('quantity');
+                        $quantity = \App\Models\Size::where('product_id', $product['id'])->sum('quantity');
                     ?>
                     <x-product 
                         name="{{$product['name']}}"

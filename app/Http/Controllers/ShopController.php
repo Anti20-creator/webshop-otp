@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Basket;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Size;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,17 +22,18 @@ class ShopController extends Controller
 
     public function product($slug)
     {
-        $product = Product::all()->where('slug', $slug)->first();
+        $product = Product::where('slug', $slug)->first();
         if(!$product) abort(404);
 
-        $category = Category::all()->where('id', $product['category_id'])->first()['name'];
+        $category = Category::where('id', $product['category_id'])->first()['name'];
+        $sizes = Size::where('product_id', $product['id'])->orderBy('name', 'DESC')->get();
 
-        return view('product-details', compact('product', 'category'));
+        return view('product-details', compact('product', 'category', 'sizes'));
     }
 
     public function categoryPage($category)
     {
-        $category_id = Category::all()->where('name', $category)->first()->id;
+        $category_id = Category::where('name', $category)->first()->id;
         $products = Product::where('category_id', $category_id)->paginate(12);
 
         return view('pages.category', compact('products'));
