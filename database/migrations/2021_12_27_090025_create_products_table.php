@@ -27,9 +27,10 @@ class CreateProductsTable extends Migration
             $table->float('price');
             $table->float('discount')->nullable();
             $table->string('special-label')->nullable();
+            $table->boolean('has_variants')->default(false);
 
             // Don't forget about foreign keys!
-            $table->foreignId('category_id')->constrained();
+            //$table->foreignId('category_id')->constrained();
             $table->index('id');
             $table->unique(['name', 'slug']);
         });

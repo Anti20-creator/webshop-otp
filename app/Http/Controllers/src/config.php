@@ -48,7 +48,7 @@ $config = [
     
     'URLS_SUCCESS' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-good-order',       //url for successful payment
     'URLS_FAIL' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',             //url for unsuccessful
-    'URLS_CANCEL' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',         //url for cancell on payment page
+    'URLS_CANCEL' => 'http://' . $_SERVER['HTTP_HOST'] . '/erase',         //url for cancell on payment page
     'URLS_TIMEOUT' => 'http://' . $_SERVER['HTTP_HOST'] . '/process-bad-order',       //url for payment page timeout
 
 
@@ -62,4 +62,3 @@ $config = [
     //3DS
     'AUTOCHALLENGE' => true,                      //in case of unsuccessful payment with registered card run automatic challange
 ];
-

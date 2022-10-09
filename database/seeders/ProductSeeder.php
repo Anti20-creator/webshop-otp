@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
     public function run()
     {
 
-        $categories = ['basic', 'comfy'];
+        $categories = ['basic', 'comfy', 'sexy', 'tops'];
         foreach($categories as $category) { 
             DB::table('categories')->insert([
                 'name' => $category,
@@ -38,6 +38,7 @@ class ProductSeeder extends Seeder
 
             $special_labels = [ 'basic', 'comfy', null ];
 
+            print_r($names[$i]);
             DB::table('products')->insert([
                 'name'          => $names[$i],
                 'slug'          => implode('-', explode(' ', trim(strtolower($names[$i])))),
@@ -46,12 +47,16 @@ class ProductSeeder extends Seeder
                 'images'        => json_encode($imgset),
                 'thumbnails'    => null,
                 'discount'      => null,
-                'special-label' => $faker->randomElement($special_labels),
-                'category_id'   => $faker->numberBetween(1, 2)
+                'special-label' => $faker->randomElement($special_labels)
+            ]);
+
+
+            DB::table('product_categories')->insert([
+                'product_id' => $i + 1,
+                'category_id' => $faker->numberBetween(1, 4)
             ]);
             
-            
-            $selected_sizes = $faker->randomElements($sizes, 3);
+            $selected_sizes = $faker->randomElements($sizes, $faker->numberBetween(1, 4));
             
             foreach ($selected_sizes as $size) {
                 DB::table('sizes')->insert([

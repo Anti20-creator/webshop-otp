@@ -6,6 +6,7 @@ use App\Models\Basket;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Size;
+use App\Models\ProductCategory;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,16 +26,16 @@ class ShopController extends Controller
         $product = Product::where('slug', $slug)->first();
         if(!$product) abort(404);
 
-        $category = Category::where('id', $product['category_id'])->first()['name'];
         $sizes = Size::where('product_id', $product['id'])->orderBy('name', 'DESC')->get();
 
-        return view('product-details', compact('product', 'category', 'sizes'));
+        return view('product-details', compact('product', 'sizes'));
     }
 
     public function categoryPage($category)
     {
         $category_id = Category::where('name', $category)->first()->id;
-        $products = Product::where('category_id', $category_id)->paginate(12);
+        $product_ids = ProductCategory::where('category_id', $category_id)->pluck('product_id');
+        $products = Product::whereIn('id', $product_ids)->paginate(12);
 
         return view('pages.category', compact('products'));
     }
@@ -126,6 +127,21 @@ class ShopController extends Controller
 
         //ORDER ITEMS
         //-----------------------------------------------------------------------------------------
+        $items_in_db = Size::whereIn('id', array_keys($cart->items))->get();
+        foreach($items_in_db as $item) {
+            if($item['quantity'] < $cart->items[$item['id']]['qty']) {
+                dd('nincs elég elem!');
+                //return redirect('/shop');
+            }
+        }
+        DB::transaction(function() use ($cart) {
+            foreach($cart->items as $item) {
+                $db_item = Size::where('id', $item['variantId'])->first();
+                $db_item->timestamps = false;
+                $db_item->quantity -= $item['qty'];
+                $db_item->save();
+            }
+        });
         foreach ($cart->items as $item) {
             $trx->addItems(
                 array(
@@ -287,5 +303,10 @@ class ShopController extends Controller
         print "</pre>";*/
 
         return view('pages.order-informations');
+    }
+
+    public function erase()
+    {
+        Size::truncate();
     }
 }

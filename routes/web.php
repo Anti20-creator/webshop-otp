@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,9 +25,30 @@ Route::get('/cart', [ShopController::class, 'cartPage']);
 Route::get('/success-order', [ShopController::class, 'successOrderIndex']);
 Route::get('/order-error', [ShopController::class, 'orderErrorIndex']);
 
+
 Route::post('/addToCart', [ShopController::class, 'addToCart'])->name('addToCart');
 Route::post('/removeFromCart', [ShopController::class, 'removeFromCart'])->name('removeFromCart');
 Route::post('pay', [ShopController::class, 'startPayment'])->name('pay');
 Route::get('/process-good-order', [ShopController::class, 'processGoodOrder']);
 Route::get('/process-bad-order', [ShopController::class, 'processBadOrder']);
 Route::post('/forward-to-pay', [ShopController::class, 'placeOrder']);
+Route::get('/erase', [ShopController::class, 'erase']);
+
+Route::get('/admin', [AdminController::class, 'index']);
+
+Route::group(['middleware' => ['guest']], function() {
+
+	Route::post('/login', [AdminController::class, 'login'])->name('login.perform');
+
+});
+
+Route::group(['middleware' => ['auth']], function() {
+
+	Route::get('/admin/categories', [AdminController::class, 'categoriesAdminPage']);
+	Route::get('/admin/products', [AdminController::class, 'productsAdminPage']);
+	Route::get('/admin/products/add', [AdminController::class, 'productsAddAdminPage']);
+
+	Route::post('/admin/categories/create', [AdminController::class, 'createCategory'])->name('admin.createCategory');
+	Route::post('/admin/products/create', [AdminController::class, 'createProduct'])->name('admin.createProduct');
+
+});

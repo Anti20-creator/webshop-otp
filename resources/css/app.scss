@@ -23,7 +23,7 @@ $secondary-color: #7f3c39;
     background-color: white;
     color: $main-color !important;
 }
-.badge:after{
+/*.badge:after{
     content:attr(value);
     font-size:14px;
     color: #fff;
@@ -34,7 +34,7 @@ $secondary-color: #7f3c39;
     left:-8px;
     top:-10px;
     opacity:0.9;
-}
+}*/
 .navbar .cart-wrapper {
     text-align: right !important;
 }
@@ -319,8 +319,10 @@ input.form-control:focus {
     width: 40px;
     text-align: center;
 }
-
-
+.cart a {
+    color: black !important;
+    text-decoration: none !important;
+}
 
 
 
