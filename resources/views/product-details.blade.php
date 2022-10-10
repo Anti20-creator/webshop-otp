@@ -42,12 +42,15 @@
                         	@if ($size->quantity > 0)
                         		<option value="{{$size->name}}">{{$size->name}}</option>
                         	@else
-                        		<option disabled value="{{$size->name}}">{{$size->name}} - (out of stock)</option>
+                        		<option disabled value="{{$size->name}}">{{$size->name}} - (elfogyott)</option>
                         	@endif
                         @endforeach
                     </select>
+
+                    <p class="text-left mt-3"><span class="fw-bold">Készleten:</span> <span id="dynamic-quantity">{{$sizes[0]->quantity}}</span>db</p>
+
                     <input name="product_id" type="text" hidden value="{{ $product['id'] }}">
-                    <button class="add-to-cart mt-3 w-100">
+                    <button class="add-to-cart mt-3 w-100" id="submit-btn">
                         Add to cart
                     </button>
                 </form>
@@ -77,15 +80,32 @@ var swiper2 = new Swiper(".mySwiper2", {
 $('#buyForm').submit(function(e) {
     e.preventDefault();
 
+    const data = $('#buyForm').serialize();
+
     $.ajax({
         type: 'POST',
         url: '../addToCart',
-        data: $('#buyForm').serialize(), // serializes the form's elements.
+        data: data, // serializes the form's elements.
         success: function(data) {
             console.log(data); // show response from the php script.
             Livewire.emit('updateCart')
         }
     });
+})
+
+const sizes = <?php echo $sizes; ?>
+
+$('select').on('change', function(e) {
+    e.preventDefault()
+
+    const quantity = sizes.find(s => s.name === e.target.value).quantity
+    document.querySelector('#dynamic-quantity').innerHTML = quantity
+    if(quantity < 1) {
+        document.querySelector('#submit-btn').setAttribute('disabled', '')
+    }else{
+        document.querySelector('#submit-btn').removeAttribute('disabled')
+    }
+
 })
 </script>
 @endsection

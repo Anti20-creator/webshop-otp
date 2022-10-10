@@ -55,6 +55,19 @@
                 </div>
             </div>
         </div>
+        @if($errors->any())
+            <div class="position-fixed bottom-0 end-0 p-3">
+                <div class="toast" style="display: block;" role="alert" aria-live="assertive" aria-atomic="true">
+                  <div class="toast-header">
+                    <strong class="me-auto">Sikertelen rendelés</strong>
+                    <button onclick="document.querySelector('.toast').remove()" type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Bezárás"></button>
+                  </div>
+                  <div class="toast-body">
+                    <b>{{$errors->first()}}</b>
+                  </div>
+                </div>
+            </div>
+        @endif
     </div>
     
     <script>

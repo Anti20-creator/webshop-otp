@@ -249,11 +249,20 @@ input.form-control:focus {
     font-weight: bold;
     transition: 0.4s;
 }
+.product-details form button:disabled {
+    color: white;
+    background-color: grey;
+}
 .product-details form button:hover {
     background-color: white;
     color: #d2b49c;
     border: #d2b49c 1px solid;
     transition: 0.5s;
+}
+.product-details form button:disabled:hover {
+    color: white;
+    background-color: grey;
+    border: none;
 }
 .product-details form {
     text-align: center;

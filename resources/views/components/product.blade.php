@@ -2,7 +2,7 @@
     <div class="product-holder">
         <a href="/product/{{ $slug }}"> <!-- ID will go here -->
             <div class="image-holder">
-                <div class="image" style="background-image: url({{'/uploads/'.$image}});">
+                <div class="image" style="background-image: url({{'/uploads/thumb_'.$image}});">
                 </div>
                 @if ($quantity <= 0)
                     <div class="out-of-stock">

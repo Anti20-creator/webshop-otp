@@ -130,8 +130,8 @@ class ShopController extends Controller
         $items_in_db = Size::whereIn('id', array_keys($cart->items))->get();
         foreach($items_in_db as $item) {
             if($item['quantity'] < $cart->items[$item['id']]['qty']) {
-                dd('nincs elég elem!');
-                //return redirect('/shop');
+                return redirect('/cart')
+                    ->withErrors(['error' => 'Nincs minden elem raktáron!']);
             }
         }
         DB::transaction(function() use ($cart) {

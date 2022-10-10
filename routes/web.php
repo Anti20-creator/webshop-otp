@@ -47,8 +47,11 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::get('/admin/categories', [AdminController::class, 'categoriesAdminPage']);
 	Route::get('/admin/products', [AdminController::class, 'productsAdminPage']);
 	Route::get('/admin/products/add', [AdminController::class, 'productsAddAdminPage']);
+	Route::get('/admin/products/edit/{id}', [AdminController::class, 'productsEditAdminPage']);
+	Route::get('/admin/orders', [AdminController::class, 'ordersAdminPage']);
 
 	Route::post('/admin/categories/create', [AdminController::class, 'createCategory'])->name('admin.createCategory');
 	Route::post('/admin/products/create', [AdminController::class, 'createProduct'])->name('admin.createProduct');
+	Route::post('/admin/products/edit/{id}', [AdminController::class, 'editProduct']);
 
 });

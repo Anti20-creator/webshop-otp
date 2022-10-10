@@ -35,7 +35,6 @@ class Basket extends Model
         $item = Product::where('id', $id)->first();
         $variantId = Size::where('product_id', $id)->where('name', $size)->first()->id;
 
-
         $storedItem = ['qty' => 0, 'price' => $item->price, 'item' => $item, 'size' => $size, 'variantId' => $variantId];
 
         if($this->items && array_key_exists($variantId, $this->items)) {

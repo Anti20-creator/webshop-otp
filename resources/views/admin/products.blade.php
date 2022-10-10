@@ -14,6 +14,7 @@
 				<td>Ár</td>
 				<td>Méretek</td>
 				<td>Kedvezményezett</td>
+				<td></td>
 			</thead>
 			<tbody>
 				@foreach ($products as $product)
@@ -21,7 +22,8 @@
 						<td>{{$product['name']}}</td>
 						<td>{{ number_format($product['price'], 0, ' ', ' ') }} Ft</td>
 						<td>{{$product->sizes->implode('name', ', ')}}</td>
-						<td>{{$product['discount'] == null ? 'Nincs' : $product['discount']}}</td>
+						<td>{{$product['discount'] == null ? 'Nem' : $product['discount']}}</td>
+						<td><a class="btn btn-info" href="products/edit/{{$product['id']}}">Szerkesztés</a></td>
 				  	</tr>
 			  	@endforeach
 			</tbody>

@@ -13,4 +13,9 @@ class Product extends Model
     {
         return $this->hasMany(Size::class)->orderBy('name', 'DESC');
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'product_categories');
+    }
 }
