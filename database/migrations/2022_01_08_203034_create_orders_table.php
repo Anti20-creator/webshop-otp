@@ -16,7 +16,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamps();
 
             $table->string('name');
             $table->string('email');
@@ -26,6 +26,9 @@ class CreateOrdersTable extends Migration
             $table->string('phone');
             $table->string('transaction_id');
             $table->string('order_ref');
+            $table->string('order-status');
+            $table->string('shipping-id')->nullable();
+            $table->boolean('paid')->default(false);
             $table->json('items');
         });
     }

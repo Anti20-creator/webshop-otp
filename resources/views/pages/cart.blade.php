@@ -13,8 +13,9 @@
                         </div>
                         <div class="col d-flex p-2 flex-column justify-content-center">
                             <a href="/product/{{$item['item']['slug']}}">
-                                <p class="m-0 text-uppercase">{{$item['item']->name}} ({{ $item['size'] }})</p>
+                                <p class="m-0 text-uppercase {{ ($errors->any() && in_array($item['variantId'], $errors->all())) ? 'error' : ''}}">{{$item['item']->name}} ({{ $item['size'] }})</p>
                                 <p class="m-0">{{$item['item']->price}} Ft</p>
+                                <p>{{$item['variantId']}} {{join(',', $errors->all())}}</p>
                                 <br>
                                 <div class="d-flex">
                                     <form class="cart-forms remove" action="{{ route('removeFromCart') }}" method="POST">
@@ -55,19 +56,6 @@
                 </div>
             </div>
         </div>
-        @if($errors->any())
-            <div class="position-fixed bottom-0 end-0 p-3">
-                <div class="toast" style="display: block;" role="alert" aria-live="assertive" aria-atomic="true">
-                  <div class="toast-header">
-                    <strong class="me-auto">Sikertelen rendelés</strong>
-                    <button onclick="document.querySelector('.toast').remove()" type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Bezárás"></button>
-                  </div>
-                  <div class="toast-body">
-                    <b>{{$errors->first()}}</b>
-                  </div>
-                </div>
-            </div>
-        @endif
     </div>
     
     <script>

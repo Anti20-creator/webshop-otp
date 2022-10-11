@@ -20,14 +20,21 @@
 		@endif	
 		<ul class="list-group mt-4">
 			@for ($i = 0; $i < count($categories); ++$i)
-			<li class="list-group-item d-flex justify-content-between align-items-start">
+			<li class="list-group-item d-flex justify-content-between align-items-start btn" data-bs-toggle="collapse" data-bs-target="#collapse-{{$i}}">
 			    <div class="ms-2 me-auto">
 			      <div class="fw-bold">
 			      	{{$categories[$i]['name']}}
 			      </div>
 			    </div>
 			    <span class="badge bg-primary rounded-pill">{{$counts[$categories[$i]['id']] ?? 0}}</span>
-			  </li>
+		    </li>
+		    <li class="list-group-item collapse" id="collapse-{{$i}}">
+		    	@foreach($categories[$i]->products as $product)
+		    		<p>
+		    			{{$product['name']}}
+		    		</p>
+		    	@endforeach
+		    </li>	
 		  	@endfor
 		</ul>
 	</div>

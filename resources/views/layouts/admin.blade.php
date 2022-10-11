@@ -15,7 +15,8 @@
     <link href="https://use.fontawesome.com/releases/v5.0.1/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-
+{{-- toastr --}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
         @livewireStyles
 </head>
 <body>
@@ -49,11 +50,23 @@
       <div class="p-4"></div>
       @yield('content')
       
+    {{-- toastr js --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/i18n/defaults-hu_HU.min.js" integrity="sha512-8LPFZwPJmmF2n+YA15dtDNQsc9c32MOyBfpDiLjehP72CLb1uWvDyNWaly3Lt6sQA/QAP6YUko+BDb2bCiNcww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    <script>
+        //$(document).ready(function() {
+           $(document).ready(function() {
+            toastr.options.timeOut = 3000;
+            @if ($errors->any())
+                toastr.error('{{ $errors->first() }}');
+            @endif
+          });
+        //});
+    </script>
 
-      @livewireScripts
+    @livewireScripts
 </body>
 </html>

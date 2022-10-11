@@ -24,18 +24,19 @@
   color: #d2b49c !important;
 }
 
-/*.badge:after{
-    content:attr(value);
-    font-size:14px;
-    color: #fff;
-    background: #df3e3d;
-    border-radius:50%;
-    padding: 0 5px;
-    position:relative;
-    left:-8px;
-    top:-10px;
-    opacity:0.9;
-}*/
+.badge:after {
+  content: attr(value);
+  font-size: 14px;
+  color: #fff;
+  background: #df3e3d;
+  border-radius: 50%;
+  padding: 0 5px;
+  position: relative;
+  left: -8px;
+  top: -10px;
+  opacity: 0.9;
+}
+
 .navbar .cart-wrapper {
   text-align: right !important;
 }
@@ -375,6 +376,22 @@ input.form-control:focus {
 .cart a {
   color: black !important;
   text-decoration: none !important;
+}
+
+.col.error {
+  border: 1px solid red;
+}
+
+p.error {
+  color: red;
+}
+
+.collapsing {
+  transition: height 0.01s ease;
+}
+
+table tr td {
+  vertical-align: middle;
 }
 
 .swiper {

@@ -322,6 +322,33 @@ class AdminController extends Controller
         return redirect()->to('/admin/products')->with('msg', 'success');
     }
 
+    public function editOrderStatus(Request $request)
+    {
+        $status = ['none', 'shipping', 'done'];
+        $order = Order::where('id', $request->get('order-id'))->first();
+        $newStatus = $request->get('order-status');
+
+        if(!$order || !in_array($newStatus, $status)) return abort(404);
+
+        $order['order-status'] = $newStatus;
+        $order->save();
+
+        return back();
+
+    }
+
+    public function editOrderShippingId(Request $request)
+    {
+        $order = Order::where('id', $request->get('order-id'))->first();
+        if(!$order) return abort(404);
+
+        $order['shipping-id'] = $request->get('shipping-id');
+        $order->save();
+
+        return back();
+
+    }
+
     protected function authenticated(Request $request, $user) 
     {
         return redirect('/admin');

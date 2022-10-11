@@ -35,6 +35,7 @@ Route::post('/forward-to-pay', [ShopController::class, 'placeOrder']);
 Route::get('/erase', [ShopController::class, 'erase']);
 
 Route::get('/admin', [AdminController::class, 'index']);
+Route::get('/mail', [ShopController::class, 'mail']);
 
 Route::group(['middleware' => ['guest']], function() {
 
@@ -53,5 +54,7 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::post('/admin/categories/create', [AdminController::class, 'createCategory'])->name('admin.createCategory');
 	Route::post('/admin/products/create', [AdminController::class, 'createProduct'])->name('admin.createProduct');
 	Route::post('/admin/products/edit/{id}', [AdminController::class, 'editProduct']);
+	Route::post('/admin/orders/edit-status/{id}', [AdminController::class, 'editOrderStatus']);
+	Route::post('/admin/orders/edit-shipping-id/{id}', [AdminController::class, 'editOrderShippingId']);
 
 });

@@ -6,8 +6,6 @@
 		
 		<h2>{{$product['name']}} szerkesztése</h2>
 
-		<p>{{$errors->first()}}</p>
-
 		<form method="post" action="{{'/admin/products/edit/'.$product['id'] }}" enctype="multipart/form-data">
 
 			@csrf

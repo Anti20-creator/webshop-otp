@@ -9,12 +9,23 @@ use App\Models\Size;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use App\Mail\OrderMade;
 use SimplePayStart;
 
 class ShopController extends Controller
 {
+
+    public function mail()
+    {
+        $order = Order::first();
+        Mail::to('amtmannkristof@gmail.com')->send(new OrderMade($order));
+
+        echo "asd";
+    }
+
     public function index()
     {
         $products = Product::paginate(12);
@@ -68,7 +79,8 @@ class ShopController extends Controller
 
     public function successOrderIndex()
     {
-        if (count(explode('process-good-order', url()->previous())) > 1) {
+        //if (count(explode('process-good-order', url()->previous())) > 1) {
+        if(Session::has('transaction_id')) {
             return view('pages.success-order');
         }
         return abort(404);
@@ -77,18 +89,13 @@ class ShopController extends Controller
     public function processGoodOrder()
     {
         $items = Session::get('cart')->items;
-        $data = Session::get('customer');
-        DB::table('orders')->insert([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'city' => $data['city'],
-            'zip' => $data['zip'],
-            'address' => $data['address'],
-            'phone' => $data['phone'],
-            'transaction_id' => $data['transaction_id'],
-            'order_ref' => $data['order_ref'],
-            'items' => json_encode($items)
-        ]);
+        $transactionId = Session::get('transaction_id');
+        
+        $order = Order::where('transaction_id', $transactionId)->first();
+        $order->paid = true;
+        $order->save();
+
+        Mail::to($order['email'])->send(new OrderMade($order));
 
         Session::put('cart', null);
         return redirect('/success-order');
@@ -128,13 +135,18 @@ class ShopController extends Controller
         //ORDER ITEMS
         //-----------------------------------------------------------------------------------------
         $items_in_db = Size::whereIn('id', array_keys($cart->items))->get();
+        $not_enough = [];
         foreach($items_in_db as $item) {
             if($item['quantity'] < $cart->items[$item['id']]['qty']) {
-                return redirect('/cart')
-                    ->withErrors(['error' => 'Nincs minden elem raktáron!']);
+                $not_enough[] = $item['id'];
             }
         }
-        DB::transaction(function() use ($cart) {
+
+        if(count($not_enough) > 0) {
+            return redirect('/cart')
+                ->withErrors(['error' => 'Nincs minden elem raktáron!', 'not_enough' => $not_enough]);
+        }
+        DB::transaction(function() use ($cart, $request, $trx) {
             foreach($cart->items as $item) {
                 $db_item = Size::where('id', $item['variantId'])->first();
                 $db_item->timestamps = false;
@@ -266,8 +278,8 @@ class ShopController extends Controller
         //create transaction in SimplePay system
         //-----------------------------------------------------------------------------------------
         $trx->runStart();
-        
-        Session::put('customer', array(
+
+        DB::table('orders')->insert([
             'name' => $request->input('customer_name'),
             'email' => $request->input('email'),
             'city' => $request->input('city'),
@@ -275,8 +287,12 @@ class ShopController extends Controller
             'address' => $request->input('address'),
             'phone' => $request->input('phone'),
             'transaction_id' => $trx->getReturnData()['transactionId'],
-            'order_ref' => $trx->getReturnData()['orderRef']
-        ));
+            'order_ref' => $trx->getReturnData()['orderRef'],
+            'items' => json_encode($cart->items),
+            'order-status' => 'none'
+        ]);
+        
+        Session::put('transaction_id', $trx->getReturnData()['transactionId']);
 
         //create html form for payment using by the created transaction
         //-----------------------------------------------------------------------------------------

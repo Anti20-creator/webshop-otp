@@ -14,6 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <link href="https://use.fontawesome.com/releases/v5.0.1/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+    {{-- toastr --}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
         @livewireStyles
 </head>
 <body>
@@ -53,6 +55,18 @@
       <div class="p-4"></div>
       
       <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+      {{-- toastr js --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+
+    <script>
+       $(document).ready(function() {
+        toastr.options.timeOut = 3000;
+        @if ($errors->any())
+            toastr.error('{{ $errors->first() }}');
+        @endif
+      });
+    </script>
+
       @yield('content')
 
       @livewireScripts

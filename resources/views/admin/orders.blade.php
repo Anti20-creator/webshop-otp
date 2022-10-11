@@ -2,15 +2,18 @@
 
 @section('content')
 
-	<div class="mt-4 container">
+	<div class="mt-4 mx-2">
 		
 		<h2>Rendelések</h2>
 		
-		<table class="table table-hover table-striped table-dark">
+		<table class="table table-striped">
 			<thead>
 				<td>Név</td>
 				<td>Összérték</td>
 				<td>Összmennyiség</td>
+				<td>Kifizetve</td>
+				<td>Státusz</td>
+				<td></td>
 				<td></td>
 			</thead>
 			<tbody>
@@ -30,205 +33,88 @@
 						<td>{{$order['name']}}</td>
 						<td>{{ number_format($price, 0, ' ', ' ') }} Ft</td>
 						<td>{{$quantity}}</td>
-						<td><button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{$key}}" aria-expanded="false" aria-controls="collapseExample">
-    						Részletek
-  						</button></td>
-				  	</tr>
-				  	<tr>
-				  		<td>
-					  	<div class="collapse" id="collapse-{{$key}}">
-						  <div class="card card-body">
-						    Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
-						  </div>
-						</div>
+						<td>{{$order['transaction_id'] != null ? 'Igen' : 'Nem'}}</td>
 						<td>
+							@if($order['order-status'] == 'none')
+								<button class="btn btn-warning">
+									Függőben
+								</button>
+							@endif
+							@if($order['order-status'] == 'shipping')
+								<button class="btn btn-primary">
+									Szállítás alatt
+								</button>
+							@endif
+							@if($order['order-status'] == 'done')
+								<button class="btn btn-secondary">
+									Teljesítve
+								</button>
+							@endif
+						</td>
+  						<td>
+  							<button class="btn btn-danger">
+  								Törlés
+  							</button>
+  						</td>
+						<td>
+							<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{$key}}" aria-expanded="false" aria-controls="collapseExample">
+    							Részletek
+  							</button>
+  						</td>
+				  	</tr>
+				  	<tr class="collapse" id="collapse-{{$key}}">
+				  		<td class="" colspan="6">
+			            	<div>
+			            		<table class="mx-auto table table-striped">
+			            			<thead>
+			            				<td class="p-2">Termék neve</td>
+			            				<td class="p-2">Rendelt mennyiség</td>
+			            				<td class="p-2">Egységár</td>
+			            			</thead>
+			            			<tbody>
+			            				@foreach($items as $key => $item)
+			            					<tr class="my-2">
+			            						<td class="p-2">{{$item['item']['name']}}</td>
+			            						<td class="p-2">{{$item['qty']}}</td>
+			            						<td class="p-2">{{ number_format($item['item']['price'], 0, ' ', ' ') }} Ft</td>
+			            					</tr>
+			            				@endforeach
+			            			</tbody>
+			            		</table>
+
+			            		<div class="row">
+				            		<div class="col-md-4 col-10 mx-auto">
+					            		<form method="post" action="{{ '/admin/orders/edit-shipping-id/'.$order['id'] }}">
+					            			@csrf
+					            			<input type="hidden" name="order-id" value="{{$order['id']}}">
+					            			<input value="{{$order['shipping-id']}}" class="form-control my-2" type="text" name="shipping-id" placeholder="Szállítási azonosító">
+
+					            			<input type="submit" class="form-control btn-primary" value="Mentés">
+					            		</form>
+				            		</div>
+
+				            		<div class="col-md-4 col-10 mx-auto">
+					            		<form method="post" action="{{ '/admin/orders/edit-status/'.$order['id'] }}">
+					            			@csrf
+					            			<input type="hidden" name="order-id" value="{{$order['id']}}">
+					            			<select name="order-status" class="form-control my-2">
+					            				<option @if($order['order-status'] == "none") {{"selected"}} @endif value="none">Függőben</option>
+					            				<option @if($order['order-status'] == "shipping") {{"selected"}} @endif value="shipping">Szállítás alatt</option>
+					            				<option @if($order['order-status'] == "done") {{"selected"}} @endif value="done">Teljesítve</option>
+					            			</select>
+
+					            			<input type="submit" class="form-control btn-primary" value="Mentés">
+					            		</form>
+				            		</div>
+			            			
+			            		</div>
+			            	</div>
+			            </td>
 					</tr>
 			  	@endforeach
 			</tbody>
 		</table>
 
-		<div class="container">
-	<div class="col-md-12">
-    	<div class="panel panel-default">
-				<div class="panel-heading">
-					Employee
-				</div>
-        <div class="panel-body">
-					<table class="table table-condensed table-striped">
-    <thead>
-        <tr>
-					<th></th>
-          <th>Fist Name</th>
-          <th>Last Name</th>
-          <th>City</th>
-          <th>State</th>
-          <th>Status</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr data-toggle="collapse" data-bs-target="#demo1" class="accordion-toggle">
-           <td><button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"></span></button></td>
-            <td>Carlos</td>
-            <td>Mathias</td>
-            <td>Leme</td>
-            <td>SP</td>
-          	<td>new</td>
-        </tr>
-			
-        <tr>
-            <td colspan="12" class="hiddenRow">
-							<div class="accordian-body collapse" id="demo1"> 
-              <table class="table table-striped">
-                      <thead>
-                        <tr class="info">
-													<th>Job</th>
-													<th>Company</th>
-													<th>Salary</th>		
-													<th>Date On</th>	
-													<th>Date off</th>	
-													<th>Action</th>	
-												</tr>
-											</thead>	
-								  		
-											<tbody>
-												
-                        <tr data-toggle="collapse"  class="accordion-toggle" data-bs-target="#demo10">
-													<td> <a href="#">Enginner Software</a></td>
-													<td>Google</td>
-													<td>U$8.00000 </td>
-													<td> 2016/09/27</td>
-													<td> 2017/09/27</td>
-													<td> 
-														<a href="#" class="btn btn-default btn-sm">
-                 								 <i class="glyphicon glyphicon-cog"></i>
-															</a>
-													</td>
-												</tr>
-												
-												 <tr>
-            <td colspan="12" class="hiddenRow">
-							<div class="accordian-body collapse" id="demo10"> 
-              <table class="table table-striped">
-                      <thead>
-                        <tr>
-													<td><a href="#"> XPTO 1</a></td>
-													<td>XPTO 2</td>
-													<td>Obs</td>
-												</tr>
-                        <tr>
-													<th>item 1</th>
-													<th>item 2</th>
-													<th>item 3 </th>
-													<th>item 4</th>
-													<th>item 5</th>
-													<th>Actions</th>
-												</tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-													<td>item 1</td>
-													<td>item 2</td>
-													<td>item 3</td>
-													<td>item 4</td>
-													<td>item 5</td>
-													<td>
-															<a href="#" class="btn btn-default btn-sm">
-                  							<i class="glyphicon glyphicon-cog"></i>
-															</a>
-													</td>
-												</tr>
-                      </tbody>
-               	</table>
-              
-              </div> 
-          </td>
-        </tr>
-																										
-                        <tr>
-													<td>Scrum Master</td>
-													<td>Google</td>
-													<td>U$8.00000 </td>
-													<td> 2016/09/27</td>
-													<td> 2017/09/27</td>
-													<td> <a href="#" class="btn btn-default btn-sm">
-                 								 <i class="glyphicon glyphicon-cog"></i>
-															</a>
-													</td>
-												</tr>
-												
-														
-                        <tr>
-													<td>Back-end</td>
-													<td>Google</td>
-													<td>U$8.00000 </td>
-													<td> 2016/09/27</td>
-													<td> 2017/09/27</td>
-													<td> <a href="#" class="btn btn-default btn-sm">
-                 								 <i class="glyphicon glyphicon-cog"></i>
-															</a>
-													</td>
-												</tr>
-												
-														
-                        <tr>
-													<td>Front-end</td>
-													<td>Google</td>
-													<td>U$8.00000 </td>
-													<td> 2016/09/27</td>
-													<td> 2017/09/27</td>
-													<td> <a href="#" class="btn btn-default btn-sm">
-                 								 <i class="glyphicon glyphicon-cog"></i>
-															</a>
-													</td>
-												</tr>
-								
-               
-                      </tbody>
-               	</table>
-              
-              </div> 
-          </td>
-        </tr>
-      
-      
-			
-        <tr data-toggle="collapse" data-bs-target="#demo2" class="accordion-toggle">
-             <td><button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"></span></button></td>
-             <td>Silvio</td>
-            <td>Santos</td>
-            <td>São Paulo</td>
-            <td>SP</td>
-          <td> new</td>
-        </tr>
-        <tr>
-            <td colspan="6" class="hiddenRow"><div id="demo2" class="accordian-body collapse">Demo2</div></td>
-        </tr>
-        <tr data-toggle="collapse" data-bs-target="#demo3" class="accordion-toggle">
-            <td><button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"></span></button></td>
-            <td>John</td>
-            <td>Doe</td>
-            <td>Dracena</td>
-            <td>SP</td>
-          <td> New</td>
-        </tr>
-        <tr>
-            <td colspan="6" class="hiddenRow"><div id="demo3" class="accordian-body collapse">Demo3 sadasdasdasdasdas</div></td>
-        </tr>
-    </tbody>
-</table>
-            </div>
-        
-          </div> 
-        
-      </div>
-	</div>
-       
-
-
-		<p>
-			<span>asd</span>
-		</p>
 
 	</div>
 

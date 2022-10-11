@@ -87,7 +87,7 @@ $('#buyForm').submit(function(e) {
         url: '../addToCart',
         data: data, // serializes the form's elements.
         success: function(data) {
-            console.log(data); // show response from the php script.
+            toastr.success('Kosárba rakva!');
             Livewire.emit('updateCart')
         }
     });
